@@ -1,0 +1,78 @@
+{% extends 'admin_side/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container p-2 mb-3"  >
+    <div class="row" >
+       <div class="col">
+      <div class="UserDetail" style="height: 680px; padding-top: 64px; padding-bottom: 24px; padding-left: 24px; padding-right: 24px; background: white; box-shadow: 0px 1.5px 2px rgba(15.99, 24.03, 40.11, 0.10); border-radius: 8px; overflow: hidden; border: 1px #E0E2E7 solid; flex-direction: column; justify-content: flex-start; align-items: center; gap: 18px; display: flex">
+          
+        <div class="PhotoName" style="flex-direction: column; justify-content: flex-start; align-items: center; gap: 8px; display: flex">
+          <div class="Avatar" style="justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
+            <div class="Photo" style="width: 164px; height: 164px; background: #E0E2E7; border-radius: 100px"></div>
+          </div>
+          <div class="Name" style="align-self: stretch; height: 24px; flex-direction: column; justify-content: flex-start; align-items: center; gap: 8px; display: flex">
+            <div class="NameStatus" style="justify-content: center; align-items: center; gap: 8px; display: inline-flex">
+              <div class="Text" style="text-align: center; color: #333843; font-size: 16px;  font-weight: 500; line-height: 24px; letter-spacing: 0.08px; word-wrap: break-word">{{user.first_name}} {{user.last_name}}</div>
+            </div>
+          </div>
+        </div>
+        <div class="Divider" style="align-self: stretch; height: 0px; border: 1px #E0E2E7 solid"></div>
+        <!-- <div class="ListItem1Col" style="width: 312px; justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
+          <div class="CircleIconBagde" style="padding: 8px; background: #E0E2E7; border-radius: 100px; overflow: hidden; border: 4px #F0F1F3 solid; justify-content: flex-start; align-items: flex-start; gap: 8px; display: flex">
+            <div class="Lock" style="width: 24px; height: 24px; padding-left: 3px; padding-right: 3px; padding-top: 2px; padding-bottom: 2px; justify-content: center; align-items: center; display: flex">
+              <div class="Icon" style="width: 18px; height: 20px; background: #667085"></div>
+            </div>
+          </div>
+          <div class="Text" style="flex: 1 1 0; flex-direction: column; justify-content: center; align-items: flex-start; gap: 4px; display: inline-flex">
+            <div class="Text" style="align-self: stretch; color: #4D5464; font-size: 14px;  font-weight: 500; line-height: 20px; letter-spacing: 0.07px; word-wrap: break-word">User ID</div>
+            <div class="Text" style="align-self: stretch; color: #1A1C21; font-size: 14px;  font-weight: 500; line-height: 20px; letter-spacing: 0.07px; word-wrap: break-word">ID-011221</div>
+          </div>
+        </div> -->
+        <div class="ListItem1Col" style="width: 312px; justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
+          <div class="CircleIconBagde" style="padding: 8px; background: #E0E2E7; border-radius: 100px; overflow: hidden; border: 4px #F0F1F3 solid; justify-content: flex-start; align-items: flex-start; gap: 8px; display: flex">
+            <div class="Envelope" style="width: 24px; height: 24px; padding-left: 2px; padding-right: 2px; padding-top: 4px; padding-bottom: 4px; justify-content: center; align-items: center; display: flex">
+            <i class="fa-light fa-envelope" style="font-size: 15px;"></i>
+            </div>
+          </div>
+          <div class="Text" style="flex: 1 1 0; flex-direction: column; justify-content: center; align-items: flex-start; gap: 4px; display: inline-flex">
+            <div class="Text" style="align-self: stretch; color: #4D5464; font-size: 14px;  font-weight: 500; line-height: 20px; letter-spacing: 0.07px; word-wrap: break-word">Billing Email</div>
+            <div class="Text" style="align-self: stretch; color: #1A1C21; font-size: 14px;  font-weight: 500; line-height: 20px; letter-spacing: 0.07px; word-wrap: break-word">{{user.email}}</div>
+          </div>
+        </div>
+        <div class="ListItem1Col" style="width: 312px; justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
+          <div class="CircleIconBagde" style="padding: 8px; background: #E0E2E7; border-radius: 100px; overflow: hidden; border: 4px #F0F1F3 solid; justify-content: flex-start; align-items: flex-start; gap: 8px; display: flex">
+            <div class="Phone" style="width: 24px; height: 24px; justify-content: center; align-items: center; display: flex">
+              <i class="fa-light fa-phone" style="font-size: 15px;"></i>
+            </div>
+          </div>
+          <div class="Text" style="flex: 1 1 0; flex-direction: column; justify-content: center; align-items: flex-start; gap: 4px; display: inline-flex">
+            <div class="Text" style="align-self: stretch; color: #4D5464; font-size: 14px;  font-weight: 500; line-height: 20px; letter-spacing: 0.07px; word-wrap: break-word">Phone Number</div>
+            <div class="Text" style="align-self: stretch; color: #1A1C21; font-size: 14px;  font-weight: 500; line-height: 20px; letter-spacing: 0.07px; word-wrap: break-word">{{address.phone_number}}</div>
+          </div>
+        </div>
+        <div class="ListItem1Col" style="width: 312px; justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
+          <div class="CircleIconBagde" style="padding: 8px; background: #E0E2E7; border-radius: 100px; overflow: hidden; border: 4px #F0F1F3 solid; justify-content: flex-start; align-items: flex-start; gap: 8px; display: flex">
+            <div class="Pin" style="width: 24px; height: 24px; padding-top: 2px; padding-bottom: 2.12px; padding-left: 4px; padding-right: 4px; justify-content: center; align-items: center; display: flex">
+              <i class="fa-light fa-light fa-address-card "style="font-size: 15px;"></i>
+            </div>
+          </div>
+          {% comment %} <div class="Text" style="flex: 1 1 0; flex-direction: column; justify-content: center; align-items: flex-start; gap: 4px; display: inline-flex">
+            <div class="Text" style="align-self: stretch; color: #4D5464; font-size: 14px;  font-weight: 500; line-height: 20px; letter-spacing: 0.07px; word-wrap: break-word">Delivery Address</div>
+            <div class="Text" style="align-self: stretch; color: #17183B; font-size: 16px; font-family: Poppins; font-weight: 400; line-height: 24px; word-wrap: break-word">{{address.town_city}}, {{address.street_address}}, {{address.state}} , {{address.country_region}} {{address.zip_code}} </div>
+          </div>
+        </div>
+        <div class="ListItem1Col" style="width: 312px; justify-content: flex-start; align-items: flex-start; gap: 8px; display: inline-flex">
+          <div class="CircleIconBagde" style="padding: 8px; background: #E0E2E7; border-radius: 100px; overflow: hidden; border: 4px #F0F1F3 solid; justify-content: flex-start; align-items: flex-start; gap: 8px; display: flex">
+            <div class="Cart" style="width: 24px; height: 24px; padding-top: 2.50px; padding-bottom: 2.50px; padding-left: 2px; padding-right: 2.09px; justify-content: center; align-items: center; display: flex">
+              <i class="fa-light fa-truck-fast" style="font-size: 15px;"></i>
+            </div>
+          </div>
+          <div class="Text" style="flex: 1 1 0; flex-direction: column; justify-content: center; align-items: flex-start; gap: 4px; display: inline-flex">
+            <div class="Text" style="align-self: stretch; color: #4D5464; font-size: 14px;  font-weight: 500; line-height: 20px; letter-spacing: 0.07px; word-wrap: break-word">Latest Transaction</div>
+            <div class="Text" style="align-self: stretch; color: #1A1C21; font-size: 14px;  font-weight: 500; line-height: 20px; letter-spacing: 0.07px; word-wrap: break-word">12 December 2023</div>
+          </div> {% endcomment %}
+        </div>
+      </div>
+    </div>
+
+    {% endblock content %}

@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OTP Verification</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" type="text/css" href="{% static 'user_side/login/css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-6 col-md-6 form-container">
+                <div class="col-lg-8 col-md-12 col-sm-9 col-xs-12 form-box text-center">
+                    <div class="logo mt-5 mb-3">
+                        <img src="{% static 'image/logo.png' %}" width="150px">
+                    </div>
+                    <div class="heading mb-3">
+                        <h4>Verify OTP</h4>
+                    </div>
+                    <form method="POST" action="{% url 'user_app:otp_verification' %}">
+                        {% csrf_token %}
+                        <div class="form-input">
+                            <span><i class="fa fa-mobile"></i></span>
+                            <input type="text" placeholder="Enter OTP" name="otp_entered" required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="form-group">
+                                {% if messages %}
+                                {% for message in messages %}
+                                    <div class="{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">
+                                        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+                                        <strong>&#9888;</strong> {{ message }}
+                                    </div>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="text-left mb-3">
+                            <button type="submit" class="btn">Verify OTP</button>
+                        </div>
+                        <div id="otp-timer-container">
+                            <div id="otp-timer" class="text-white"></div>
+                        </div>
+                    </form>
+                    <div class="text-white">Didn't receive the OTP?
+                        <a href="{% url 'user_app:resend_otp' %}" class="login-link" id="resend-otp-btn">Resend OTP</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-md-6 d-none d-md-block image-container"></div>
+        </div>
+    </div>
+</body>
+
+<script>
+    // Set the duration of the timer in seconds
+    var timerDuration = 60; // 1 minute
+
+    // Function to update the timer every second
+    function updateTimer() {
+        var timerElement = document.getElementById('otp-timer');
+        timerElement.innerHTML = formatTime(timerDuration);
+
+        // Check if the timer has reached zero
+        if (timerDuration === 0) {
+            // If the timer has reached zero, you can handle it here (e.g., disable the "Resend OTP" button)
+            document.getElementById('resend-otp-btn').disabled = false;
+        } else {
+            // If the timer has not reached zero, decrement the timer and schedule the next update
+            document.getElementById('resend-otp-btn').disabled = true;
+            timerDuration--;
+            setTimeout(updateTimer, 1000);
+        }
+    }
+
+    // Function to format the remaining time in MM:SS format
+    function formatTime(seconds) {
+        var minutes = Math.floor(seconds / 60);
+        var remainingSeconds = seconds % 60;
+        return pad(minutes) + ":" + pad(remainingSeconds);
+    }
+
+    // Function to pad single-digit numbers with leading zeros
+    function pad(number) {
+        return (number < 10 ? '0' : '') + number;
+    }
+
+    // Call the updateTimer function to start the timer
+    updateTimer();
+</script>
+</html>

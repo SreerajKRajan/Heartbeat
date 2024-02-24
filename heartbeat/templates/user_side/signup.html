@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sign UP</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" type="text/css" href="{% static 'user_side/login/css/style.css' %}">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+	<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-GLhlTQ8i7GZsKZL+O3u5m5Z6ZIX0Uq6cfvpFfB8eXGGgFOjZK5fa5MToJzjM+2W1" crossorigin="anonymous">
+
+</head>
+
+<style>
+	.image-container {
+		background: url('{% static "user_side/login/image/bg_login.jpeg" %}') center no-repeat;
+		background-size: cover;
+		height: 100vh;
+	}
+	
+</style>
+
+<body>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-lg-6 col-md-6 form-container">
+				<div class="col-lg-8 col-md-12 col-sm-9 col-xs-12 form-box text-center">
+					{% comment %} <div class="logo mt-5 mb-3">
+						<img src="{% static 'image/logo.png' %}" width="150px">
+					</div> {% endcomment %}
+					<div class="heading mb-3">
+						<h4>Create an account</h4>
+					</div>
+					<form method="POST" action="{% url "user_app:signup_page" %}">
+						{% csrf_token %}
+						<div class="form-input">
+							<span><i class="fa fa-user"></i></span>
+							<input type="text" placeholder="Username"  name="username" required>
+						</div>
+						<div class="form-input">
+							<span><i class="fa fa-envelope"></i></span>
+							<input type="email" placeholder="Email Address" name="email" required>
+						</div>
+						<div class="form-input">
+							<span><i class="fa fa-lock"></i></span>
+							<input type="password" placeholder="Password" name="password1" id="password1" required>
+							<span class="toggle-password" onclick="togglePassword('password1')"><i class="fa fa-eye-slash" id="eye-icon1"></i></span>
+						</div>
+						<div class="form-input">
+							<span><i class="fa fa-lock"></i></span>
+							<input type="password" placeholder="Confirm Password" name="password2" id="password2" required>
+							<span class="toggle-password" onclick="togglePassword('password2')"><i class="fa fa-eye-slash" id="eye-icon2"></i></span>
+						</div>
+						 <div class="row mb-3">
+							{% comment %}<div class="col-12 d-flex">
+								<div class="custom-control custom-checkbox">
+									<input type="checkbox" class="custom-control-input" id="cb1">
+									<label class="custom-control-label text-white" for="cb1">I agree all terms & conditions</label>
+								</div>
+							</div>
+							{% endcomment %}
+							{% comment %} <div class="form-group"> {% endcomment %}
+								{% if messages %}
+								{% for message in messages %}
+								  <div class="{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">
+									<span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+									<strong>&#9888;</strong> {{ message }}
+								  </div>
+								{% endfor %}
+							  {% endif %}
+							  
+							{% comment %} </div> {% endcomment %}
+						</div> 
+						<div class="text-left mb-3">
+							<button type="submit" class="btn">Register</button>
+						</div>
+						<div class="text-white mb-3">or register with</div>
+						<div class="row mb-3">
+							<div class="col-4">
+								<a href="" class="btn btn-block btn-social btn-facebook">
+									<i class="fa fa-facebook"></i>
+								</a>
+							</div>
+							<div class="col-4">
+								<a href="" class="btn btn-block btn-social btn-google">
+									<i class="fa fa-google"></i>
+								</a>
+							</div>
+							<div class="col-4">
+								<a href="" class="btn btn-block btn-social btn-twitter">
+									<i class="fa fa-twitter"></i>
+								</a>
+							</div>
+						</div>
+					</form>
+					<div class="text-white">Already have an account?
+						<a href="{% url "user_app:login_page" %}" class="login-link">Login here</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-6 col-md-6 d-none d-md-block image-container"></div>
+		</div>
+	</div>
+</body>
+
+<script>
+    function togglePassword(passwordFieldId) {
+        var passwordField = document.getElementById(passwordFieldId);
+        var eyeIcon = document.getElementById('eye-icon' + passwordFieldId.charAt(passwordFieldId.length - 1));
+
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        } else {
+            passwordField.type = 'password';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        }
+    }
+</script>
+</html>

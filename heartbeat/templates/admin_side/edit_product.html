@@ -1,0 +1,65 @@
+{% extends 'admin_side/base.html' %}
+{% load static %}
+{% block content %}
+<section class="content-main">
+    <div class="row">
+        <div class="col-9">
+            <div class="content-header">
+                <h2 class="content-title">Edit Product</h2>
+            </div>
+        </div>
+        <!-- Edit product form  -->
+        <form method="POST" >
+            {% csrf_token %}
+            <div class="col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <label for="product_title" class="form-label">Product title</label>
+                            <input type="text" placeholder="Type here" name="product_title" class="form-control"
+                                id="product_title" value="{{ products.product_name }}">
+                        </div>
+                        <div class="row gx-3">
+                            <div class="col-md-4  mb-3">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" name="category_id">
+                                    {% for category in category %}
+                                    <option value="{{category.id}}" {% if category.id == products.category_id %} selected {% endif %}>{{category.category_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4  mb-3">
+                                <label class="form-label">Brand</label>
+                                <select class="form-select" name="brand_id">
+                                    {% for brand in brand %}
+                                    <option value="{{brand.id}}" {% if brand.id == product.brand_id %} selected {% endif %}>{{brand.brand_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4  mb-3">
+                                <label class="form-label">Price</label>
+                                <input type="text" placeholder="Type here" name="price" class="form-control"
+                                    id="price" value="{{ product.price }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div>
+                                <label class="form-label">Description</label>
+                                <textarea placeholder="Type here" class="form-control" rows="4"
+                                    name="description">{{ product.description }}</textarea>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn  btn-md rounded font-sm hover-up"
+                                style="margin-left: 20px;">UPDATE </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <!-- end edit product form  -->
+    </div>
+</section>
+{% endblock content %}
