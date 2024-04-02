@@ -62,6 +62,7 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
         'AUTH_PARAMS': {
             'access_type': 'online',
+            'response_type': 'code',
         },
         'OAUTH_PKCE_ENABLED': True,
     }
@@ -157,7 +158,6 @@ STATICFILES_DIRS = [
 ]
 
 MEDIA_URLS = '/media/'
-
 MEDIAROOTS = os.path.join(BASE_DIR,'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -182,15 +182,22 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        # For each OAuth based provider, either add a ``SocialApp``
-        # (``socialaccount`` app) containing the required client
-        # credentials, or list them here:
-        'APP': {
-            'client_id': '123',
-            'secret': '456',
-            'key': ''
-        }
-    }
-}
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         # For each OAuth based provider, either add a ``SocialApp``
+#         # (``socialaccount`` app) containing the required client
+#         # credentials, or list them here:
+#         'APP': {
+#             'client_id': '123',
+#             'secret': '456',
+#             'key': ''
+
+#         }
+#     }
+# }
+
+LOGIN_REDIRECT_URL = '/'
+
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
+
+SOCIALACCOUNT_LOGIN_ON_GET=True

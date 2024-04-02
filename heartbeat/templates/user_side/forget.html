@@ -10,14 +10,22 @@
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 	<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
+<style>
+    .image-container {
+        background: url('{% static "user_side/login/image/bg_login.jpeg" %}') center no-repeat;
+        background-size: cover;
+        height: 100vh;
+    }
+    
+</style>
 <body>
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-lg-6 col-md-6 form-container">
 				<div class="col-lg-8 col-md-12 col-sm-9 col-xs-12 form-box">
-					<div class="logo mt-5 mb-3 text-center">
+					{% comment %} <div class="logo mt-5 mb-3 text-center">
 						<img src="{% static 'image/logo.png' %}" width="150px">
-					</div>
+					</div> {% endcomment %}
 					<div class="reset-form d-block">
 						<form class="reset-password-form">
 							<h4 class="mb-3">Reset Your Password</h4>

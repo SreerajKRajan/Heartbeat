@@ -3,6 +3,12 @@
 {% block content %}
 <section class="content-main">
     <div class="row">
+        <div class="col-9">
+            <div class="content-header">
+                <h2 class="content-title">Add Product Variant</h2>
+
+            </div>
+        </div>
         <form method="POST" action="" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="col-lg-6">
@@ -66,12 +72,11 @@
                             <div>
                                 <label class="form-label">Product-Images</label>
                                 <div class="input-upload" id="imagePreviewContainer"></div>
-                                <input class="form-control" type="file" name="product_image" id="product_image"
-                                    multiple onchange="previewImages(event)">
+                                <input class="form-control" type="file" name="product_image" id="product_image" multiple">
                             </div>
                         </div>
                         <div>
-                            <button class="btn  btn-md rounded font-sm hover-up" style="margin-left: 20px;">ADD
+                            <button class="btn-dark  btn-md rounded font-sm hover-up" style="margin-left: 20px;">ADD
                             </button>
                         </div>
                     </div> <!-- card end// -->
@@ -81,31 +86,4 @@
     </div>
 </section>
 
-
-{% comment %} <script>
-    
-function previewImages(event) {
-    const input = event.target;
-    const previewContainer = document.getElementById('imagePreviewContainer');
-    
-    previewContainer.innerHTML = '';  // Clear previous preview
-
-    if (input.files) {
-        for (const file of input.files) {
-            const reader = new FileReader();
-
-            reader.onload = function (e) {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.style.maxWidth = '100px';  // Adjust the width as needed
-                img.style.maxHeight = '100px';  // Adjust the height as needed
-
-                previewContainer.appendChild(img);
-            };
-
-            reader.readAsDataURL(file);
-        }
-    }
-}
-</script> {% endcomment %}
 {% endblock content %}

@@ -3,7 +3,12 @@
 {% block content %}
 <section class="content-main">
     <div class="row">
-        <form method="POST" action="" enctype="multipart/form-data">
+        <div class="col-9">
+            <div class="content-header">
+                <h2 class="content-title">Edit Product Variant</h2>
+            </div>
+        </div>
+        <form method="POST" action="{% url 'edit_product_variant' old_product.id %}" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="col-lg-6">
                 <div class="card mb-4">
@@ -12,80 +17,74 @@
                             <label class="form-label">Product</label>
                             <select class="form-select" name="product">
                                 {% for product in products %}
-                                <option value="{{product.id}}">{{product.product_name}}</option>
+                                <option value="{{product.id}}" {% if product.id == old_product.product.id %} selected {% endif %}>{{product}}</option>
                                 {% endfor %}
-
                             </select>
                         </div>
                         <div class="mb-4">
                             <label class="form-label">SKU ID</label>
-                            <input type="text" placeholder="Type here" class="form-control" name="sku_id" value="{{old_product.sku_id}}">
+                            <input type="text" placeholder="Type here" class="form-control" name="sku_id" value="{{ old_product.sku_id }}">
                         </div>
                         <div class="row gx-3">
-                            {% for attribute_name, attribute_values in attribute_dict.items %} 
-                            <!-- <option>{{atribute}}</option> -->
-                            <div class="col-md-4  mb-3">
-                                <label class="form-label">{{attribute_name}}</label>
-                                <select class="form-select" name="attributes">
-                                    <option value="">----------</option>
-                                    {% for value in attribute_values %}
-                                    {% if value.attribute_value in attr %}
-                                    <option value="{{ value.id }}" selected>{{ value.attribute_value }}</option>
-                                    {% else %}
-                                    <option value="{{ value.id }}">{{ value.attribute_value }}</option>
-                                    {% endif %}
-                                    {% endfor %}
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Colour</label>
+                                <select class="form-select" name="colour_value">
+                                    {% comment %} {% for value in products %}
+                                        <option value="{{ value.id }}" {% if value.id == old_product.colour.id %} selected {% endif %}>{{ colour_value }}</option>
+                                    {% endfor %} {% endcomment %}
+                                        {% for value in colour %}
+                                            <option value="{{ value.id }}" {% if value in old_product.colour.all %} selected {% endif %}>{{ value.colour_value }}</option>
+                                        {% endfor %}
+                                    
                                 </select>
-                            </div>
-                            {% endfor %}
+
+                            </div>                            
                         </div>
                         <div class="row gx-3">
-
                             <div class="col-md-4  mb-3">
                                 <label for="product_size" class="form-label">Max Price</label>
                                 <input type="text" placeholder="Type here" class="form-control" id="product_size"
-                                    name="max_price" value="{{old_product.max_price}}">
+                                    name="max_price" value="{{ old_product.max_price }}">
                             </div>
-
-
                             <div class="col-md-4  mb-3">
                                 <label for="product_size" class="form-label">Sale price</label>
                                 <input type="text" placeholder="Type here" class="form-control" id="product_size"
-                                    name="sale_price" value="{{old_product.sale_price}}">
+                                    name="sale_price" value="{{ old_product.sale_price }}">
                             </div>
                             <div class="col-md-4  mb-3">
                                 <label for="product_size" class="form-label">Stock</label>
                                 <input type="text" placeholder="Type here" class="form-control" id="product_size"
-                                    name="stock" value="{{old_product.stock}}">
+                                    name="stock" value="{{ old_product.stock }}">
                             </div>
                         </div>
                     </div>
                     <div class="card mb-4">
                         <div class="card-body">
-                    
-                                <div class="input-upload">
-                                    
-                                    <img src="{{old_product.thumbnail_image.url}}" alt="">
-                                    <input class="form-control" type="file" name="thumbnail_image" >
-                                    <label class="form-label">Thumbnail-Images</label>
-                                </div>
-                               
+                            <div>
+                                <label class="form-label">Thumbnail-Images</label>
+                                <input class="form-control" type="file" name="existing_product_images" onchange="previewImages(event)">
+                            </div>
+                            {% if old_product.thumbnail_image %}
+                            <div>
+                                <label class="form-label">Previously Selected Image</label>
+                                <img src="{{ old_product.thumbnail_image.url }}" alt="Thumbnail Image">
+                            </div>
+                            {% endif %}
+                        </div>
                         </div>
                         <div class="card-body">
-                                <div class="input-upload">
-                                    {% if old_product.additional_product_images.all %}
-                                        {% for image in old_product.additional_product_images.all %}
-                                    <img src="{{image.image.url}}" alt="">
-                                        {% endfor %}
-                                    {% endif %}
-                                    <input class="form-control" type="file" name="product_image" id="product_image"
-                                    multiple onchange="previewImages(event)">
-                                    <label class="form-label">Product-Images</label>
-                                    <div id="imagePreviewContainer"></div>
+                            <div>
+                                <label class="form-label">Product-Images</label>
+                                <div class="input-upload" id="imagePreviewContainer">
+                                    {% for image in old_product.additional_product_images.all %}
+                                        <img src="{{ image.image.url }}" alt="Product Image">
+                                    {% endfor %}
                                 </div>
-                        </div>
+                                <input class="form-control" type="file" name="product_image" id="product_image" multiple>
+                            </div>
+                        </div>                        
                         <div>
-                            <button class="btn  btn-md rounded font-sm hover-up" style="margin-left: 20px;">ADD
+                            <button class="btn-dark  btn-md rounded font-sm hover-up" style="margin-left: 20px;">SAVE
                             </button>
                         </div>
                     </div> <!-- card end// -->
@@ -95,31 +94,4 @@
     </div>
 </section>
 
-<script>
-function previewImages(event) {
-    const input = event.target;
-    const previewContainer = document.getElementById('imagePreviewContainer');
-    
-    previewContainer.innerHTML = '';  // Clear previous preview
-
-    if (input.files) {
-        for (const file of input.files) {
-            const reader = new FileReader();
-
-            reader.onload = function (e) {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.style.maxWidth = '100px';  // Adjust the width as needed
-                img.style.maxHeight = '100px';  // Adjust the height as needed
-
-                previewContainer.appendChild(img);
-            };
-
-            reader.readAsDataURL(file);
-        }
-    }
-}
-</script>
-
- 
 {% endblock content %}

@@ -1,4 +1,6 @@
 {% load static %}
+{% load socialaccount %}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -84,7 +86,7 @@
 								</a>
 							</div>
 							<div class="col-4">
-								<a href="" class="btn btn-block btn-social btn-google">
+								<a href="{% provider_login_url 'google' method='oauth2' %}" class="btn btn-block btn-social btn-google">
 									<i class="fa fa-google"></i>
 								</a>
 							</div>

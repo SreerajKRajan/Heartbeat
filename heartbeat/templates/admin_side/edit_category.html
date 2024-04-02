@@ -1,0 +1,71 @@
+{% extends 'admin_side/base.html' %}
+{% load static %}
+{% block content %}
+<section class="content-main">
+    <div class="row">
+        <div class="col-9">
+            <div class="content-header">
+                <h2 class="content-title">Edit Category</h2>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>General Information</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="category_name" class="form-label">Category Name</label>
+                            <input type="text" placeholder="Type here" name="category_name" class="form-control"
+                                   id="edit_category" value="{{ category.category_name }}">
+                                   <p style="color: red" id="err-edit-cat"></p>
+
+                        </div>                        
+                        <!-- Add other fields as needed for editing -->
+
+                        <div>
+                            <button class="btn-dark btn-md rounded font-sm hover-up" id="add-btn" type="submit">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div> <!-- card end// -->
+        </div>
+        {% comment %}
+        <!-- Add a similar section for additional features or media if needed -->
+        {% endcomment %}
+    </div>
+</section> <!-- content-main end// -->
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("add-btn").addEventListener("click", function (event) {
+        let preventDefault = false;  // Flag to determine whether to prevent the default behavior
+
+        //const categoryRegex = /^[^\s].*[^\s]$/;
+        const editCategoryRegex = /^[^\s].*[^\s]$/;
+
+
+        function validateEditCategory() {
+            const editCategoryInput = document.getElementById("edit_category");
+            const editCategoryName = editCategoryInput.value;
+            if (editCategoryRegex.test(editCategoryName)) {
+                return true;
+            } else {
+                document.getElementById("err-edit-cat").textContent = "Please enter a valid category name";
+                preventDefault = true;  // Set the flag to true if validation fails
+                return false;
+            }
+        }
+        validateEditCategory();
+        // Prevent the default behavior only if any of the validations fail
+        if (preventDefault) {
+            event.preventDefault();
+       }
+});
+
+});
+
+</script>
+{% endblock content %}

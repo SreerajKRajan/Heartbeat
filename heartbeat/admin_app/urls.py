@@ -5,11 +5,6 @@ from product_management import views as productView
 urlpatterns = [
     path('admin-login/',views.admin_login,name='admin_login'),
     path('admin-dashboard',views.admin_dashboard,name='admin_dashboard'),  
-    # path('admin-products_list',views.admin_products_list,name='admin_products_list'),
-    path('admin-orders',views.admin_orders,name='admin_orders'),
-    path('admin-catagories',views.admin_catagories,name='admin_catagories'),
-    # path('admin-add-products',views.admin_add_products,name='admin_add_products'),
-    # path('admin-users-list',views.admin_users_list,name='admin_users_list'),
     path('admin-logout',views.admin_logout,name='admin_logout'),
 
     ################## User management ####################################
@@ -30,10 +25,20 @@ urlpatterns = [
     path('edit-product-variant/<int:product_id>/',productView.edit_product_variant,name='edit_product_variant'),
     path('unlist-product/<int:product_id>/',productView.unlist_product,name='unlist-product'), # Making it unavailable
     path('list-product/<int:product_id>/',productView.list_product,name='list-product'),       # Making it available
-    path('toggle-product/<int:id>/',productView.toggle_product_variant,name='toggle-product-variant'),     
+    path("list-product-variant/<int:product_id>/",productView.list_product_variant, name="list_product_variant"),
+    path('unlist-product-variant/<int:product_id>/', productView.unlist_product_variant, name='unlist_product_variant'),
 
-
+    ################# Category management ##################################
     
+    path('manage-category/',views.manage_category,name='manage_category'),
+    path('add-category/',views.add_category,name='add_category'),
+    path('edit-category/<int:category_id>/', views.edit_category, name='edit_category'),
+    path('unlist-category/<int:category_id>/',views.unlist_category,name='unlist_category'), # Making it unavailable
+    path('list-category/<int:category_id>/',views.list_category,name='list_category'),       # Making it available
+
+
+
+
     # path('admin-',views.admin_,name='admin_')
     # path('',views.adminhome,name='adminhome'),
     # path('login/',views.admin_login,name='admin_login'),

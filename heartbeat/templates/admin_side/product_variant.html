@@ -5,13 +5,12 @@
         <section class="content-main">
             <div class="content-header">
                 <div>
-                    <h2 class="content-title card-title">Products List</h2>
-                    <p>Lorem ipsum dolor sit amet.</p>
+                    <h2 class="content-title card-title">Product Variant List</h2>
                 </div>
                 <div>
                     <!-- <a href="#" class="btn btn-light rounded font-md">Export</a>
                     <a href="#" class="btn btn-light rounded  font-md">Import</a> -->
-                    <a href="{% url 'add_product_variant' %}" class="btn btn-primary btn-sm rounded">Create new</a>
+                    <a href="{% url 'add_product_variant' %}" class="btn btn-dark btn-sm rounded">Create new</a>
                 </div>
             </div>
             <div class="card mb-4">
@@ -41,6 +40,17 @@
                                 <option>Show all</option>
                             </select>
                         </div>
+                        {% if messages %}
+                        <div class="col-12">
+                            <div class="alert alert-info" role="alert">
+                                <ul>
+                                    {% for message in messages %}
+                                        <li>{{ message }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </header> <!-- card-header end// -->
                 <div class="card-body">
@@ -78,17 +88,17 @@
                             <div class="col-lg-2 col-sm-2 col-4 col-action text-end">
                                 
                                 {% if i.is_active == True %}
-                                <button onclick="toggleProductVariant('{{ i.id }}')" class="btn btn-sm font-sm alert-danger rounded block-user-btn">
+                                <a href="{% url 'unlist_product_variant' product_id=i.id %}" onclick="toggleProductVariant('{{ i.id }}', 'unlist')" class="btn btn-sm font-sm alert-danger rounded block-user-btn">
                                     Unlist
-                                </button>
+                                </a>
                             {% else %}
-                                <button onclick="toggleProductVariant('{{ i.id }}')" class="btn btn-sm font-sm alert-success rounded unblock-user-btn">
+                                <a href="{% url 'list_product_variant' product_id=i.id %}" onclick="toggleProductVariant('{{ i.id }}', 'list')" class="btn btn-sm font-sm alert-success rounded unblock-user-btn">
                                     List
-                                </button>
+                                </a>
                             {% endif %}
                         </div>
                             <div class="col-lg-2 col-sm-2 col-4 col-action text-end"> 
-                                <a href="{% url 'edit_product_variant' product_id=i.id %}" class="btn btn-sm font-sm rounded btn-brand">
+                                <a href="{% url 'edit_product_variant' product_id=i.id %}" class="btn btn-sm font-sm rounded btn-dark">
                                     <i class="material-icons md-edit"></i> Edit
                                 </a>
                                 <!-- <a href="#" class="btn btn-sm font-sm btn-light rounded">
@@ -115,16 +125,17 @@
         </section> <!-- content-main end// -->
 
 
-        <script>
-      function toggleProductVariant(id) {
-    // Make an asynchronous request to toggle_product_variant endpoint
-    fetch(`/admin/toggle-product/${id}/`)
+<script>
+function toggleProductVariant(id, action) {
+    // Make an asynchronous request to the appropriate endpoint based on the action
+    let url = action === 'list' ? `/admin/list-product-variant/${id}/` : `/admin/unlist-product-variant/${id}/`;
+    fetch(url)
         .then(response => response.json())
         .then(data => {
             // Check the response status and handle accordingly
             if (data.status === 'success') {
-                // Redirect to the all_variant_product view with the same product ID
-                window.location.href = `/admin/all-variant-product/${data.product_id}/`;
+                // Redirect to the product variant list view
+                window.location.reload(); // Reload the page to reflect the changes
             } else {
                 // Handle any error or display a message to the user
                 console.error(data.message);
@@ -134,5 +145,6 @@
             console.error('Error:', error);
         });
 }
-        </script>
+
+</script>
         {% endblock content %}

@@ -73,24 +73,19 @@
 				<nav class="limiter-menu-desktop container">
 					
 					<!-- Logo desktop -->		
-					<a href="#" class="logo">
+					<a href="{% url "user_app:home" %}" class="logo">
 						<img src="{% static 'user_side/images/icons/logo-01.png' %}" alt="IMG-LOGO">
 					</a>
 
 					<!-- Menu desktop -->
 					<div class="menu-desktop">
 						<ul class="main-menu">
-							{% comment %} <li> {% endcomment %}
-								<a href="index.html">Home</a>
-								{% comment %} <ul class="sub-menu">
-									<li><a href="index.html">Homepage 1</a></li>
-									<li><a href="home-02.html">Homepage 2</a></li>
-									<li><a href="home-03.html">Homepage 3</a></li>
-								</ul>
-							</li> {% endcomment %}
+							<li>
+								<a href="{% url "user_app:home" %}">Home</a>
+							</li>
 
 							<li class="active-menu">
-								<a href="product.html">Shop</a>
+								<a href="{% url "user_app:shop" %}">Shop</a>
 							</li>
 
 							<li class="label1" data-label1="hot">
@@ -333,29 +328,14 @@
 		<div class="container">
 			<div class="flex-w flex-sb-m p-b-52">
 				<div class="flex-w flex-l-m filter-tope-group m-tb-10">
-					<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1" data-filter="*">
+					<a href="{% url 'user_app:shop' %}" class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5 how-active1" data-filter="*">
 						All Products
-					</button>
-
-					<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".women">
-						Women
-					</button>
-
-					<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".men">
-						Men
-					</button>
-
-					<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".bag">
-						Bag
-					</button>
-
-					<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".shoes">
-						Shoes
-					</button>
-
-					<button class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".watches">
-						Watches
-					</button>
+					</a>
+					{% for i in category %}
+					<a href="{% url 'user_app:categories' i.id%}" class="stext-106 cl6 hov1 bor3 trans-04 m-r-32 m-tb-5" data-filter=".women">
+						{{i.category_name}}
+					</a>
+					{% endfor %}
 				</div>
 
 				<div class="flex-w flex-c-m m-tb-10">
@@ -578,18 +558,20 @@
 					<!-- Block2 -->
 					<div class="block2">
 						<div class="block2-pic hov-img0">
-							<img src="{{i.thumbnail_image.url }}" alt="IMG-PRODUCT">
-
-							<a href="#" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">
-								Quick View
-							</a>
+							<a href="{% if i.id %}{% url 'user_app:product_details' i.id %}{% endif %}">
+							{% if i.thumbnail_image %}
+								<img src="{{ i.thumbnail_image.url }}" alt="IMG-PRODUCT">
+							{% else %}
+								<!-- Provide a placeholder image or handle the case as per your requirement -->
+								<img src="/path/to/placeholder/image.jpg" alt="Placeholder Image">
+							{% endif %}
 						</div>
-
 						<div class="block2-txt flex-w flex-t p-t-14">
 							<div class="block2-txt-child1 flex-col-l ">
-								<a href="{% url 'user_app:product_details'  i.id %}" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-									{{i.product.product_name}}	</a>
-
+								<a href="{% if i.id %}{% url 'user_app:product_details' i.id %}{% endif %}" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+									{{i.product.product_name}}
+								</a>
+								
 								<span class="stext-105 cl3">
 									{{i.product.base_price}}
 								</span>

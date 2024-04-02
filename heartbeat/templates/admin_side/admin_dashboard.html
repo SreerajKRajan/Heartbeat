@@ -4,7 +4,17 @@
 {% load static %}
 
 {% block content%}
-
+        {% if messages %}
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
     <section class="content-main">
         <div class="content-header">
             <div>
@@ -12,7 +22,7 @@
                 <p>Whole data about your business here</p>
             </div>
             <div>
-                <a href="#" class="btn btn-primary"><i class="text-muted material-icons md-post_add"></i>Create report</a>
+                <a href="#" class="btn btn-dark"><i class="text-muted material-icons md-post_add"></i>Create report</a>
             </div>
         </div>
         <div class="row">
@@ -154,7 +164,7 @@
                                         <i class="material-icons md-payment font-xxl text-muted mr-5"></i> Mastercard
                                     </td>
                                     <td>
-                                        <a href="#" class="btn btn-xs"> View details</a>
+                                        <a href="#" class="btn btn-dark"> View details</a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -179,7 +189,7 @@
                                         <i class="material-icons md-payment font-xxl text-muted mr-5"></i> Visa
                                     </td>
                                     <td>
-                                        <a href="#" class="btn btn-xs"> View details</a>
+                                        <a href="#" class="btn btn-dark"> View details</a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -204,7 +214,7 @@
                                         <i class="material-icons md-payment font-xxl text-muted mr-5"></i> Paypal
                                     </td>
                                     <td>
-                                        <a href="#" class="btn btn-xs"> View details</a>
+                                        <a href="#" class="btn btn-dark"> View details</a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -229,7 +239,7 @@
                                         <i class="material-icons md-payment font-xxl text-muted mr-5"></i> Mastercard
                                     </td>
                                     <td>
-                                        <a href="#" class="btn btn-xs"> View details</a>
+                                        <a href="#" class="btn btn-dark"> View details</a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -254,7 +264,7 @@
                                         <i class="material-icons md-payment font-xxl text-muted mr-5"></i> Visa
                                     </td>
                                     <td>
-                                        <a href="#" class="btn btn-xs"> View details</a>
+                                        <a href="#" class="btn btn-dark"> View details</a>
                                     </td>
                                 </tr>
                                 <tr>
@@ -279,7 +289,7 @@
                                         <i class="material-icons md-payment font-xxl text-muted mr-5"></i> Paypal
                                     </td>
                                     <td>
-                                        <a href="#" class="btn btn-xs"> View details</a>
+                                        <a href="#" class="btn btn-dark"> View details</a>
                                     </td>
                                 </tr>
                             </tbody>

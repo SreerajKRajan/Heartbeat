@@ -4,7 +4,6 @@ from . import views
 app_name = 'user_app'
 
 urlpatterns = [
-    
     path('', views.home, name = 'home'),
     path('login/', views.login_page, name = 'login_page'),
     path('login/<str:provider>/', views.login_page, name='login_page'),
@@ -15,5 +14,6 @@ urlpatterns = [
     path('shop/', views.shop, name = 'shop'),
     path('resend_otp/', views.resend_otp, name = 'resend_otp'),
     path('product_details/<int:product_id>/', views.product_details, name = 'product_details'),
+    path('categories/<int:category_id>/', views.categories, name = 'categories'),
  ]
 

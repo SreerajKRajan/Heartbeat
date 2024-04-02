@@ -4,18 +4,18 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from user_app.models import Account
-from . models import * 
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 import json
+from product_management.models import Category
 
 
 # Create your views here.
 
 @never_cache
 def admin_login(request):
-    if request.user.is_authenticated:
-        return redirect('admin-dashboard')
+    if request.user.is_authenticated and request.user.is_superadmin:
+        return redirect('admin_dashboard')
     if request.method == "POST":
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -27,17 +27,25 @@ def admin_login(request):
             messages.success(request, 'Successfuly Logged in')
             return redirect('admin_dashboard')
         else:
-            messages.error(request, "Invalid Credentials")
+            messages.warning(request, "Invalid Credentials")
             return redirect('admin_login')
     return render(request, 'admin_side/admin_login.html')
 
-@login_required(login_url='admin-login/')
+
+def admin_dashboard(request):
+    if request.user.is_authenticated and request.user.is_superadmin:
+        return render(request,"admin_side/admin_dashboard.html")
+    return redirect('admin_login')
+
+
 def admin_logout(request):
     logout(request)
     messages.success(request,'Successfuly Logged Out')
     return redirect('user_app:home')
 
-@login_required(login_url='admin-login/')
+
+################# User Management #######################################################
+
 def all_users(request):
     if request.user.is_authenticated and request.user.is_superadmin :
         # if request.method == 'POST':
@@ -47,7 +55,7 @@ def all_users(request):
         data = Account.objects.all().order_by('id').exclude(is_superadmin=True)
         context={'users': data}
         return render(request,"admin_side/users_list.html", context=context)
-    return redirect('user_app:signup')
+    return redirect('admin_login')
 
 
 # def activate_user(request, id):
@@ -91,48 +99,84 @@ def blockuser(request):
 
     return render(request, "admin_side/users_list.html", {})
 
-@login_required(login_url='admin-login/')
 def user_details(request):
-    user_id = request.GET.get('user_id')
-    user = Account.objects.get(id=user_id)
-    # address = Address.objects.filter(account=user.id,is_default=True).first()
-    # ordered_products = OrderProduct.objects.filter(user=user,ordered=True).order_by('-id')
+    if request.user.is_authenticated and request.user.is_superadmin:
+        user_id = request.GET.get('user_id')
+        user = Account.objects.get(id=user_id)
+        # address = Address.objects.filter(account=user.id,is_default=True).first()
+        # ordered_products = OrderProduct.objects.filter(user=user,ordered=True).order_by('-id')
 
-    context={"user":user}
-    #     "user":user,
-    #     'address':address,
-    #     'ordered_products':ordered_products,
-    #     'ordered_products_count':ordered_products.count()
-    # }
-    return render(request,'admin_side/user_details.html', context)
+        context={"user":user}
+        #     "user":user,
+        #     'address':address,
+        #     'ordered_products':ordered_products,
+        #     'ordered_products_count':ordered_products.count()
+        # }
+        return render(request,'admin_side/user_details.html', context)
+    return redirect('admin_login')
+
+
+
+
+################# Category Management #############################################################
+
+def manage_category(request):
+    categories = Category.objects.all().order_by('id')
+    categoy_count = categories.count()
+    
+    context = {
+        'categories': categories,
+        'category_count': categoy_count
+    }
+
+    return render(request, 'admin_side/categorymanagement.html', context)
+
+
+def add_category(request):
+    if request.method == "POST":
+        category_name = request.POST.get('category_name')
+
+        category = Category(
+            category_name = category_name,
+            )
+        category.save()
+        return redirect('manage_category')
+    return render(request, 'admin_side/add_category.html')
+
+def edit_category(request, category_id):
+
+    category = Category.objects.get(id = category_id)
+    context = {'category':category}
+    # context = {'categories': categories}
+    if request.method == "POST":
+        category_name = request.POST.get('category_name')
+        category.category_name = category_name
+        category.save()
+
+        messages.success(request, 'Category Edited.')
+        return redirect('manage_category')
+    return render(request, 'admin_side/edit_category.html', context)
+
+################### Category Available ###############################
+
+def list_category(request, category_id):
+    category = Category.objects.get(id = category_id)
+    category.is_active = True
+    category.save()
+    return redirect('manage_category')
+
+################### Category Unavaliable ###############################
+
+def unlist_category(request, category_id):
+    category = Category.objects.get(id = category_id)
+    category.is_active = False
+    category.save()
+    return redirect('manage_category')
+        
+
 
 
         
 
-@login_required(login_url='admin-login/')
-def admin_dashboard(request):
-    if request.user.is_authenticated:
-        return render(request,"admin_side/admin_dashboard.html")
-    return redirect('admin_login')
 
 
-def admin_products_list(request):
-    return render(request,'admin_side/products_list.html')
-
-def admin_orders(request):
-    return render(request,'admin_side/orders.html')
-
-def admin_catagories(request):
-    return render(request,'admin_side/categories.html')
-
-# def admin_add_products(request):
-#     return render(request,'admin_side/add_product.html')
-
-# def admin_users_list(request):
-#     return render(request,'admin_side/users_list.html')
-
-# def admin_logout(request):
-#     return render(request,'admin_side/page-account-login.html')
-
-# def admin_dashboard(request):
-#     return render(request,'admin_side/base.html')

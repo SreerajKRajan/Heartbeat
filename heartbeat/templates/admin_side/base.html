@@ -20,6 +20,20 @@
     <link rel="shortcut icon" type="image/x-icon" href="{% static "assets_admin/imgs/theme/favicon.svg" %}">
     <!-- Template CSS -->
     <link href="{% static 'assets_admin/css/main.css' %}" rel="stylesheet" type="text/css" />
+    <style>
+        /* Dark color for active page */
+        .pagination .page-item.active .page-link {
+            background-color: #000000; /* Dark color */
+            border-color: #000000; /* Dark color */
+        }
+    
+        /* Dark color on hover for other pages */
+        .pagination .page-item:not(.active):hover .page-link {
+            background-color: #000000; /* Dark color on hover */
+            border-color: #000000; /* Dark color on hover */
+        }
+    </style>
+    
 </head>
 
 <body>
@@ -27,8 +41,8 @@
     <div class="screen-overlay"></div>
     <aside class="navbar-aside" id="offcanvas_aside">
         <div class="aside-top">
-            <a href="index.html" class="brand-wrap">
-                <img src="{% static 'assets_admin/imgs/theme/logo.svg' %}" class="logo" alt="Heartbeat Dashboard">
+            <a href="{% url 'admin_dashboard'%}" class="brand-wrap">
+                <img src="{% static 'assets_admin/imgs/theme/heartbeat-project-logo.png' %}" class="logo" alt="Heartbeat Dashboard">
             </a>
             <div>
                 <button class="btn btn-icon btn-aside-minimize"> <i class="text-muted material-icons md-menu_open"></i> </button>
@@ -41,34 +55,51 @@
                         <span class="text">Dashboard</span>
                     </a>
                 </li>
-                <li class="menu-item ">
-                    <a class="menu-link" href="{% url 'products_list' %}"> <i class="icon material-icons md-shopping_bag"></i>
-                        <span class="text">Products List</span>
+                <li class="menu-item has-submenu">
+                    <a class="menu-link" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="icon material-icons md-shopping_bag"></i>
+                        <span class="text">Product Management</span>
                     </a>
-                </li>
-                <li class="menu-item ">
-                    <a class="menu-link" href="{% url 'admin_orders' %}"> <i class="icon material-icons md-shopping_cart"></i>
-                        <span class="text">Orders List</span>
+                    <div class="submenu">
+                        <a class="menu-item" href="{% url 'products_list' %}">
+                            <i class="icon material-icons md-shopping_bag"></i>
+                            <span class="text">Products List</span>
+                        </a>
+                        <a class="menu-item" href="{% url 'add_product' %}">
+                            <i class="icon material-icons md-add_box"></i>
+                            <span class="text">Add New Product</span>
+                        </a>
+                        <a class="menu-item" href="{% url 'add_product_variant' %}">
+                            <i class="icon material-icons md-add_box"></i>
+                            <span class="text">Add Product Variant</span>
+                        </a>
+                    </div>
+                </li>                
+                <li class="menu-item has-submenu">
+                    <a class="menu-link" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="icon material-icons md-store"></i> 
+                        <span class="text">Category Management</span>
                     </a>
+                    <div class="submenu">
+                        <a class="menu-item" href="{% url 'manage_category' %}">
+                            <i class="icon material-icons md-store"></i> 
+                            <span class="text">Catagories</span>
+                        </a>
+                        <a class="menu-item" href="{% url 'add_category' %}">
+                            <i class="icon material-icons md-add_box"></i>
+                            <span class="text">Add Category</span>
+                        </a>
+                    </div>
                 </li>
-                <li class="menu-item ">
-                    <a class="menu-link" href="{% url 'admin_catagories' %}"> <i class="icon material-icons md-store"></i>
-                        <span class="text">Catagories</span>
-                    </a>
-                </li>
-                <li class="menu-item ">
-                    <a class="menu-link" href="{% url 'add_product' %}"> <i class="icon material-icons md-add_box"></i>
-                        <span class="text">Add New Product</span>
-                    </a>
-                </li>
-                <li class="menu-item ">
-                    <a class="menu-link" href="{% url 'add_product_variant' %}"> <i class="icon material-icons md-add_box"></i>
-                        <span class="text">Add Product Variant</span>
-                    </a>
-                </li>
+
                 <li class="menu-item ">
                     <a class="menu-link" href="{% url 'all_users' %}"> <i class="icon material-icons md-person"></i>
                         <span class="text">Users List</span>
+                    </a>
+                </li>
+                                <li class="menu-item ">
+                    <a class="menu-link" href=""> <i class="icon material-icons md-shopping_cart"></i>
+                        <span class="text">Orders List</span>
                     </a>
                 </li>
                 {% comment %} <li class="menu-item ">

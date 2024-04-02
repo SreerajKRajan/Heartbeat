@@ -10,22 +10,32 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
+
+<style>
+    .image-container {
+        background: url('{% static "user_side/login/image/bg_login.jpeg" %}') center no-repeat;
+        background-size: cover;
+        height: 100vh;
+    }
+    
+</style>
+
 <body>
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-6 col-md-6 form-container">
                 <div class="col-lg-8 col-md-12 col-sm-9 col-xs-12 form-box text-center">
-                    <div class="logo mt-5 mb-3">
-                        <img src="{% static 'image/logo.png' %}" width="150px">
-                    </div>
+                    {% comment %} <div class="logo mt-5 mb-3">
+                        <img src="{% static 'assets_admin/imgs/theme/heartbeat-project-logo.png' %}" width="150px">
+                    </div> {% endcomment %}
                     <div class="heading mb-3">
                         <h4>Verify OTP</h4>
                     </div>
                     <form method="POST" action="{% url 'user_app:otp_verification' %}">
                         {% csrf_token %}
                         <div class="form-input">
-                            <span><i class="fa fa-mobile"></i></span>
-                            <input type="text" placeholder="Enter OTP" name="otp_entered" required>
+                            <!-- <span><i class="fa fa-mobile "></i></span> -->
+                            <input type="text" id="otp" style="display: block;" placeholder="Enter OTP" name="otp_entered" required>
                         </div>
                         <div class="row mb-3">
                             <div class="form-group">
@@ -40,14 +50,14 @@
                             </div>
                         </div>
                         <div class="text-left mb-3">
-                            <button type="submit" class="btn">Verify OTP</button>
+                            <button type="submit" id="verifybtn" class="btn">Verify OTP</button>
                         </div>
                         <div id="otp-timer-container">
                             <div id="otp-timer" class="text-white"></div>
                         </div>
                     </form>
-                    <div class="text-white">Didn't receive the OTP?
-                        <a href="{% url 'user_app:resend_otp' %}" class="login-link" id="resend-otp-btn">Resend OTP</a>
+                    <div class="text-white"><p id="message">Didn't receive the OTP?</p>
+                        <a href="{% url 'user_app:resend_otp' %}" style="display: block;" class="login-link" id="resend-otp-btn">Resend OTP</a>
                     </div>
                 </div>
             </div>
@@ -59,7 +69,7 @@
 
 <script>
     // Set the duration of the timer in seconds
-    var timerDuration = 60; // 1 minute
+    var timerDuration = 30; // 1 minute
 
     // Function to update the timer every second
     function updateTimer() {
@@ -69,14 +79,59 @@
         // Check if the timer has reached zero
         if (timerDuration === 0) {
             // If the timer has reached zero, you can handle it here (e.g., disable the "Resend OTP" button)
-            document.getElementById('resend-otp-btn').disabled = false;
+            document.getElementById('resend-otp-btn').style.display = "block";
+            document.getElementById("otp").style.display = "none"
+            document.getElementById("verifybtn").style.display = "none"
+            document.getElementById("message").style.display = "block"
+            
+
         } else {
             // If the timer has not reached zero, decrement the timer and schedule the next update
-            document.getElementById('resend-otp-btn').disabled = true;
+      
             timerDuration--;
             setTimeout(updateTimer, 1000);
+            document.getElementById('resend-otp-btn').style.display = "none";
+            document.getElementById("message").style.display = "none"
         }
     }
+    // Add an event listener to the "Resend OTP" link
+    document.getElementById('resend-otp-btn').addEventListener('click', function (event) {
+        // Prevent the default behavior of the link
+        event.preventDefault();
+    
+        // Make an AJAX request to resend the OTP
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '{% url "user_app:resend_otp" %}', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    // Handle the response
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.status === 'success') {
+                        // Handle success (e.g., show a success message)
+                        console.log('OTP resent successfully.');
+                        alert("OTP has been resent. Check your email.");
+                        // Restart the timer
+                        timerDuration = 60;
+                        updateTimer();
+                    } else {
+                        // Handle error (e.g., show an error message)
+                        console.error('Error resending OTP.');
+                        alert("Error resending OTP.");
+                    }
+                } else {
+                    // Handle error (e.g., show an error message)
+                    console.error('Error resending OTP. Server error.');
+                    alert("Error resending OTP. Server error.");
+                }
+            }
+        };
+    
+        // Send the request
+        xhr.send();
+    });
+    
 
     // Function to format the remaining time in MM:SS format
     function formatTime(seconds) {

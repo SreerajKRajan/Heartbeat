@@ -9,6 +9,18 @@
 
             </div>
         </div>
+
+        {% if messages %}
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endif %}
         <!-- Add new product form  -->
         <form method="POST" action="{% url 'add_product' %}">
             {% csrf_token %}
@@ -19,6 +31,7 @@
                             <label for="product_title" class="form-label">Product title</label>
                             <input type="text" placeholder="Type here" name="product_title" class="form-control"
                                 id="product_title">
+                                <p style="color: red;" id="err-title"></p>
                         </div>
                         <div class="row gx-3">
                             <div class="col-md-4  mb-3">
@@ -43,6 +56,7 @@
                                 <label class="form-label">Price</label>
                                 <input type="text" placeholder="Type here" name="price" class="form-control"
                                 id="price">
+                                <p style="color: red;" id="err-price"></p>
                             </div>
                             <!-- <div class="col-md-4  mb-3">
                             <label for="product_size" class="form-label">Size</label>
@@ -56,11 +70,12 @@
                             <div>
                                 <label class="form-label">Description</label>
                                 <textarea placeholder="Type here" class="form-control" rows="4"
-                                    name="description"></textarea>
+                                    name="description" id="description"></textarea>
+                                    <p style="color: red;" id="err-disc"></p>
                             </div>
                         </div>
                         <div>
-                            <button type="submit" class="btn  btn-md rounded font-sm hover-up"
+                            <button type="submit" id="add-btn" class="btn-dark btn-md rounded font-sm hover-up"
                                 style="margin-left: 20px;">ADD </button>
                         </div>
                     </div>
@@ -73,4 +88,64 @@
 
     </div>
 </section>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("add-btn").addEventListener("click", function (event) {
+        let preventDefault = false;  // Flag to determine whether to prevent the default behavior
+
+        const productTitleRegex = /^[^\s].*[^\s]$/;
+        const priceRegex = /^[1-9]\d*$/;
+        const descriptionRegex = /^[^\s].*[^\s]$/;
+
+        function validateProductTitle() {
+            const productTitleInput = document.getElementById("product_title");
+            const productTitle = productTitleInput.value;
+            if (productTitleRegex.test(productTitle)) {
+                return true;
+            } else {
+                document.getElementById("err-title").textContent = "Please enter a valid product title";
+                preventDefault = true;  // Set the flag to true if validation fails
+                return false;
+            }
+        }
+
+        function priceValidation() {
+            const priceInput = document.getElementById("price");
+            const price = priceInput.value;
+            if (priceRegex.test(price)) {
+                return true;
+            } else {
+                document.getElementById("err-price").textContent = "Please enter a valid price";
+                preventDefault = true;  // Set the flag to true if validation fails
+                return false;
+            }
+        }
+
+        function validateDescription() {
+            const descriptionInput = document.getElementById("description");
+            const description = descriptionInput.value.trim();
+            if (descriptionRegex.test(description)) {
+                return true;
+            } else {
+                document.getElementById("err-disc").textContent = "Please enter a valid description";
+                preventDefault = true;  // Set the flag to true if validation fails
+                return false;
+            }
+        }
+
+        // Call validation functions
+        validateProductTitle();
+        priceValidation();
+        validateDescription();
+
+        // Prevent the default behavior only if any of the validations fail
+        if (preventDefault) {
+            event.preventDefault();
+        }
+    });
+});
+
+</script>
 {% endblock content %}

@@ -17,7 +17,8 @@
                         <div class="mb-4">
                             <label for="product_title" class="form-label">Product title</label>
                             <input type="text" placeholder="Type here" name="product_title" class="form-control"
-                                id="product_title" value="{{ products.product_name }}">
+                                id="edit_product_title" value="{{ product.product_name }}">
+                                <p style="color: red;" id="err-edit-title"></p>
                         </div>
                         <div class="row gx-3">
                             <div class="col-md-4  mb-3">
@@ -31,15 +32,16 @@
                             <div class="col-md-4  mb-3">
                                 <label class="form-label">Brand</label>
                                 <select class="form-select" name="brand_id">
-                                    {% for brand in brand %}
-                                    <option value="{{brand.id}}" {% if brand.id == product.brand_id %} selected {% endif %}>{{brand.brand_name}}</option>
+                                    {% for brand_instance  in brand %}
+                                    <option value="{{brand_instance.id}}" {% if brand_instance.id == product.brand_id %} selected {% endif %}>{{brand_instance.brand_name}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                             <div class="col-md-4  mb-3">
                                 <label class="form-label">Price</label>
                                 <input type="text" placeholder="Type here" name="price" class="form-control"
-                                    id="price" value="{{ product.price }}">
+                                    id="edit_price" value="{{ product.base_price }}">
+                                    <p style="color: red;" id="err-edit-price"></p>
                             </div>
                         </div>
                     </div>
@@ -48,11 +50,12 @@
                             <div>
                                 <label class="form-label">Description</label>
                                 <textarea placeholder="Type here" class="form-control" rows="4"
-                                    name="description">{{ product.description }}</textarea>
+                                    id="edit_description" name="description">{{ product.description }}</textarea>
+                                    <p style="color: red;" id="err-edit-disc"></p>
                             </div>
                         </div>
                         <div>
-                            <button type="submit" class="btn  btn-md rounded font-sm hover-up"
+                            <button type="submit" id="add-btn" class="btn-dark btn-md rounded  font-sm hover-up"
                                 style="margin-left: 20px;">UPDATE </button>
                         </div>
                     </div>
@@ -62,4 +65,63 @@
         <!-- end edit product form  -->
     </div>
 </section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("add-btn").addEventListener("click", function (event) {
+            let preventDefault = false;  // Flag to determine whether to prevent the default behavior
+    
+            const editProductTitleRegex = /^[^\s].*[^\s]$/;
+            const editPriceRegex = /^[1-9]\d*(\.\d+)?$/; // Updated regex to allow decimal values
+            const editDescriptionRegex = /^[^\s].*[^\s]$/;
+    
+            function validateEditProductTitle() {
+                const editProductTitleInput = document.getElementById("edit_product_title");
+                const editProductTitle = editProductTitleInput.value;
+                if (editProductTitleRegex.test(editProductTitle)) {
+                    return true;
+                } else {
+                    document.getElementById("err-edit-title").textContent = "Please enter a valid product title";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return false;
+                }
+            }
+    
+            function editPriceValidation() {
+                const editPriceInput = document.getElementById("edit_price");
+                const editPrice = editPriceInput.value;
+                if (editPriceRegex.test(editPrice)) {
+                    return true;
+                } else {
+                    document.getElementById("err-edit-price").textContent = "Please enter a valid price";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return false;
+                }
+            }
+    
+            function validateEditDescription() {
+                const editDescriptionInput = document.getElementById("edit_description");
+                const editDescription = editDescriptionInput.value;
+                if (editDescriptionRegex.test(editDescription)) {
+                    return true;
+                } else {
+                    document.getElementById("err-edit-disc").textContent = "Please enter a valid description";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return false;
+                }
+            }
+    
+            // Call validation functions
+            validateEditProductTitle();
+            editPriceValidation();
+            validateEditDescription();
+    
+            // Prevent the default behavior only if any of the validations fail
+            if (preventDefault) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+
 {% endblock content %}

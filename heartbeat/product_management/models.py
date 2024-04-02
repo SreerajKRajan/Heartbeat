@@ -105,9 +105,9 @@ class Product_Variant(models.Model):
 
 
 class Additional_Product_Image(models.Model):
-    product_varient         = models.ForeignKey(Product_Variant,on_delete=models.CASCADE,related_name='additional_product_images')
-    image           = models.ImageField(upload_to='media/photos/additional_photos')
-    is_active       = models.BooleanField(default=True)
+    product_variant = models.ForeignKey(Product_Variant, on_delete=models.CASCADE, related_name='additional_product_images')
+    image = models.ImageField(upload_to='media/photos/additional_photos')
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.image.url    
