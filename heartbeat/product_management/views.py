@@ -11,14 +11,31 @@ from django.http import HttpResponseRedirect
 def products_list(request):
     if request.user.is_authenticated and request.user.is_superadmin:
         category = Category.objects.all()
+        cat1 = None
+        category = Category.objects.all()
         products = Product.objects.all().order_by('-id')
+
+        
+
+        category_id = request.GET.get('category_id')  # Get the selected category ID from the request
+        if category_id != "0":
+            product1 = Product.objects.filter(id=category_id).first()
+            if product1:
+                cat = product1.category
+                products = Product.objects.filter(category=cat)
+                cat1 = cat.category_name
+
+
+ # If a category is selected
+
         product_count = products.count()
         context = {
             'category': category,
             'products': products,
-            'products_count': product_count
+            'products_count': product_count,
+            "category_name":cat1
         }
-        return render(request,'admin_side/products_list.html', context)
+        return render(request, 'admin_side/products_list.html', context)
     return redirect('admin_login')
 
 
@@ -42,9 +59,9 @@ def add_product(request):
             description = request.POST.get('description')
             base_price = request.POST.get('price')
 
-            # if Product.objects.filter(product_title = product_title).exists():
-            #     messages.warning(request, 'Product already exists')
-            #     return redirect('add_product')
+            if Product.objects.filter(product_name = product_title).exists():
+                messages.warning(request, 'Product already exists')
+                return redirect('add_product')
             if not product_title:
                 messages.warning(request, 'Product title field cannot be empty')
                 return redirect('add_product')
@@ -188,7 +205,7 @@ def add_product_variant(request):
             product_variant.save()
             product_variant.colour.set(req_atri)
             for image in product_image:
-                Additional_Product_Image.objects.create(product_varient=product_variant, image=image)
+                Additional_Product_Image.objects.create(product_variant=product_variant, image=image)
 
             messages.success(request, 'Product Variation Added')
             return redirect('add_product')

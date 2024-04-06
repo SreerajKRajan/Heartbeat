@@ -35,6 +35,9 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'user_side/css/util.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'user_side/css/main.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'user_side/login/css/style.css' %}">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
 
 
 <!--===============================================================================================-->
@@ -50,9 +53,10 @@
 				<nav class="limiter-menu-desktop p-l-45">
 					
 					<!-- Logo desktop -->		
-					<a href="#" class="logo">
-						<img src="{% static 'user_side/images/icons/logo-02.png' %}" alt="IMG-LOGO">
+					<a href="{% url 'user_app:home' %}" class="logo">
+						<span class="logo-text">HEARTBEAT</span>
 					</a>
+					
 
 					<!-- Menu desktop -->
 					<div class="menu-desktop">

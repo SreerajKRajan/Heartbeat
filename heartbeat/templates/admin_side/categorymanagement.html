@@ -39,6 +39,17 @@
                     </select>
                 </div>
             </div>
+            {% if messages %}
+            <div class="col-12">
+                <div class="alert alert-info" role="alert">
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
         </header> <!-- card-header end// -->
         <div class="card-body">
 

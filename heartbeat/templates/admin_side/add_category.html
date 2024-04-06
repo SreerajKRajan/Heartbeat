@@ -5,6 +5,17 @@
       <div class="content-header">
         <h2 class="content-title">Add New Category</h2>
       </div>
+      {% if messages %}
+      <div class="col-12">
+          <div class="alert alert-info" role="alert">
+              <ul>
+                  {% for message in messages %}
+                      <li>{{ message }}</li>
+                  {% endfor %}
+              </ul>
+          </div>
+      </div>
+      {% endif %}
     </div>
     <div class="col-lg-6">
       <div class="card mb-4">
@@ -25,10 +36,6 @@
               />
               <p style="color: red" id="err-cat"></p>
             </div>
-            <!-- <div class="mb-4">
-                            <label class="form-label">Full description</label>
-                            <textarea placeholder="Type here" class="form-control" name="category_description" rows="4" required></textarea>
-                        </div> -->
             <div>
               <button
                 class="btn-dark btn-md rounded font-sm hover-up"

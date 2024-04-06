@@ -4,16 +4,14 @@ from product_management import views as productView
 
 urlpatterns = [
     path('admin-login/',views.admin_login,name='admin_login'),
-    path('admin-dashboard',views.admin_dashboard,name='admin_dashboard'),  
+    path('admin-dashboard/',views.admin_dashboard,name='admin_dashboard'),  
     path('admin-logout',views.admin_logout,name='admin_logout'),
 
     ################## User management ####################################
 
-    path('all-users',views.all_users,name='all_users'),
-    # path('activate-user/<int:user_id>/', views.activate_user, name='activate_user'),
-    # path('deactivate-user/<int:user_id>/', views.deactivate_user, name='deactivate_user'),
+    path('all-users/',views.all_users,name='all_users'),
     path('user-details/', views.user_details, name='user_details'),
-    path('blockuser/', views.blockuser, name='blockuser'),
+    path('all-users/blockuser/', views.blockuser, name='blockuser'),
 
     ################# Product management ##################################
 
@@ -21,7 +19,7 @@ urlpatterns = [
     path('add-product/',productView.add_product,name='add_product'),
     path('edit-product/<int:product_id>/',productView.edit_product,name='edit_product'),
     path('product-variant-list/<int:product_id>/',productView.product_variant_list,name='product_variant_list'), 
-    path('add-productvariant-/',productView.add_product_variant,name='add_product_variant'),
+    path('add-productvariant/',productView.add_product_variant,name='add_product_variant'),
     path('edit-product-variant/<int:product_id>/',productView.edit_product_variant,name='edit_product_variant'),
     path('unlist-product/<int:product_id>/',productView.unlist_product,name='unlist-product'), # Making it unavailable
     path('list-product/<int:product_id>/',productView.list_product,name='list-product'),       # Making it available

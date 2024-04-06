@@ -14,55 +14,53 @@
                 </div>
             </div>
             <div class="card mb-4">
+                {% if messages %}
+                <div class="col-12">
+                    <div class="alert alert-info" role="alert">
+                        <ul>
+                            {% for message in messages %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
                 <header class="card-header">
                     <div class="row align-items-center">
-                        <div class="col col-check flex-grow-0">
-                            <div class="form-check ms-2">
-                                <input class="form-check-input" type="checkbox" value="">
+                        <div class="col-md-4 col-8">
+                            <div class="form-group">
+                                <label>Product</label>
                             </div>
                         </div>
-                        <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                            <select class="form-select">
-                                <option selected>All category</option>
-                                <option>Electronics</option>
-                                <option>Clothes</option>
-                                <option>Automobile</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2 col-6">
-                            <input type="date" value="02.05.2021" class="form-control">
-                        </div>
-                        <div class="col-md-2 col-6">
-                            <select class="form-select">
-                                <option selected>Status</option>
-                                <option>Active</option>
-                                <option>Disabled</option>
-                                <option>Show all</option>
-                            </select>
-                        </div>
-                        {% if messages %}
-                        <div class="col-12">
-                            <div class="alert alert-info" role="alert">
-                                <ul>
-                                    {% for message in messages %}
-                                        <li>{{ message }}</li>
-                                    {% endfor %}
-                                </ul>
+                        <div class="col-md-1 col-4">
+                            <div class="form-group">
+                                <label>Max Price</label>
                             </div>
                         </div>
-                        {% endif %}
+                        <div class="col-md-1 col-4">
+                            <div class="form-group">
+                                <label>Sale Price</label>
+                            </div>
+                        </div>
+                        <div class="col-md-1 col-4">
+                            <div class="form-group">
+                                <label>Stock</label>
+                            </div>
+                        </div>
+                        <!-- Add your other headers here -->
+                        <div class="col-md-2 col-4">
+                            <div class="form-group">
+                                <label>Status</label>
+                            </div>
+                        </div>
                     </div>
-                </header> <!-- card-header end// -->
+
+                </header>
                 <div class="card-body">
                     {% for i in product_variant %}
                     <article class="itemlist">
                         <div class="row align-items-center">
-                            <div class="col col-check flex-grow-0">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox">
-                                </div>
-                            </div>
-                            <div class="col-lg-4 col-sm-4 col-8 flex-grow-1 col-name">
+                            <div class="col-md-4 col-8">
                                 <a class="itemside" href="#">
                                     <div class="left">
                                         <img src="{{ i.thumbnail_image.url }}" class="img-sm img-thumbnail" alt="Item">
@@ -73,9 +71,9 @@
                                     </div>
                                 </a>
                             </div>
-                            <div class="col-lg-1 col-sm-2 col-4 col-price"> <span>{{i.max_price|floatformat:0}}</span> </div>
-                            <div class="col-lg-1 col-sm-2 col-4 col-price"> <span>{{i.sale_price|floatformat:0}}</span> </div>
-                            <div class="col-lg-1 col-sm-2 col-4 col-price"> <span>{{i.stock}}</span> </div>
+                            <div class="col-md-1 col-4"> <span>{{i.max_price|floatformat:0}}</span> </div>
+                            <div class="col-md-1 col-4"> <span>{{i.sale_price|floatformat:0}}</span> </div>
+                            <div class="col-md-1 col-4"> <span>{{i.stock}}</span> </div>
                             <div class="col-lg-2 col-sm-2 col-2 col-status" style="width: 30px;">
                                 {% if i.is_active   == True %}
                                 <span class="badge rounded-pill alert-success">Active</span>

@@ -66,7 +66,7 @@ class Colour (models.Model):
     colour_value = models.CharField(max_length = 100, unique = True)
     is_active       = models.BooleanField(default = True)
 
-    def str(self):
+    def __str__(self):
         return self.colour_value
     
 
@@ -101,6 +101,9 @@ class Product_Variant(models.Model):
     is_active            = models.BooleanField(default=True)
     created_at           = models.DateTimeField(auto_now_add=True)
     updated_at           = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.product.product_name
 
 
 

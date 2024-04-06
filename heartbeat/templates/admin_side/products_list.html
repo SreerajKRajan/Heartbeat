@@ -23,10 +23,16 @@
                             </div>
                         </div> -->
                         <div class="col-md-3 col-12 me-auto mb-md-0 mb-3">
-                            <select class="form-select" name="category_id">
-                                <option selected>All category</option>
+                            <select class="form-select" name="category_id" id="category-select">
+                                <option selected value= "0" >All category</option>
+                                {% if category_name %}
+                                <option selected value="">{{category_name}}</option>
+                                {% endif %}
+
                                 {% for i in category %}
-                                <option value="{{i.id}}">{{i.category_name}}</option>
+                                {%if i.category_name != category_name %}
+                                    <option value="{{ i.id }}">{{ i.category_name }}</option>
+                                {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
@@ -126,6 +132,12 @@
             </div>
         </section> <!-- content-main end// -->
 
+        <script>
+            document.getElementById('category-select').addEventListener('change', function () {
+                var categoryId = this.value;
+                window.location.href = "{% url 'products_list' %}?category_id=" + categoryId;
+            });
+        </script>
 <!-- 
         <script>
             // Add this script to your HTML template or a separate JS file

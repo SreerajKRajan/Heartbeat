@@ -7,6 +7,7 @@ from user_app.models import Account
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 import json
+from django.db.models import Q
 from product_management.models import Category
 
 
@@ -48,27 +49,15 @@ def admin_logout(request):
 
 def all_users(request):
     if request.user.is_authenticated and request.user.is_superadmin :
-        # if request.method == 'POST':
-    #         search_word = request.POST.get('search-box', '')
-    #         data = User.objects.filter(Q(username__icontains=search_word)| Q(email__icontains=search_word)).order_by('id').values()
-    #     else:
-        data = Account.objects.all().order_by('id').exclude(is_superadmin=True)
+        query = request.GET.get('q')
+        if query:
+            data = Account.objects.filter(Q(username__icontains = query) | Q(email__icontains = query)).exclude(is_superadmin = True).order_by('id')
+        else:    
+            data = Account.objects.all().order_by('id').exclude(is_superadmin=True)
         context={'users': data}
         return render(request,"admin_side/users_list.html", context=context)
     return redirect('admin_login')
 
-
-# def activate_user(request, id):
-#     current = get_object_or_404(Account, id=id)
-#     current.is_active = True
-#     current.save()
-#     return redirect('all_users')
-
-# def deactivate_user(request, id):
-#     current = get_object_or_404(Account, id=id)
-#     current.is_active = False
-#     current.save()
-#     return redirect('all_users')
 
 @login_required(login_url='admin-login/')
 def blockuser(request):
@@ -121,57 +110,73 @@ def user_details(request):
 ################# Category Management #############################################################
 
 def manage_category(request):
-    categories = Category.objects.all().order_by('id')
-    categoy_count = categories.count()
+    if request.user.is_authenticated and request.user.is_superadmin:
+        categories = Category.objects.all().order_by('id')
+        categoy_count = categories.count()
     
-    context = {
-        'categories': categories,
-        'category_count': categoy_count
-    }
-
-    return render(request, 'admin_side/categorymanagement.html', context)
+        context = {
+            'categories': categories,
+            'category_count': categoy_count
+        }
+        return render(request, 'admin_side/categorymanagement.html', context)
+    return redirect('admin_login')
 
 
 def add_category(request):
-    if request.method == "POST":
-        category_name = request.POST.get('category_name')
+    if request.user.is_authenticated and request.user.is_superadmin:
+        if request.method == "POST":
+            category_name = request.POST.get('category_name')
 
-        category = Category(
-            category_name = category_name,
-            )
-        category.save()
-        return redirect('manage_category')
-    return render(request, 'admin_side/add_category.html')
+            if Category.objects.filter(category_name = category_name).exists():
+                messages.warning(request, 'Cqtegory already exists')
+                return redirect('add_category')
+
+            category = Category(
+                category_name = category_name,
+                )
+            category.save()
+            return redirect('manage_category')
+        return render(request, 'admin_side/add_category.html')
+    return redirect('admin_login')
+
 
 def edit_category(request, category_id):
+    if request.user.is_authenticated and request.user.is_superadmin:
+        category = Category.objects.get(id = category_id)
+        context = {'category':category}
+        # context = {'categories': categories}
+        if request.method == "POST":
+            category_name = request.POST.get('category_name')
+            category.category_name = category_name
+            category.save()
 
-    category = Category.objects.get(id = category_id)
-    context = {'category':category}
-    # context = {'categories': categories}
-    if request.method == "POST":
-        category_name = request.POST.get('category_name')
-        category.category_name = category_name
-        category.save()
+            messages.success(request, 'Category Edited.')
+            return redirect('manage_category')
+        return render(request, 'admin_side/edit_category.html', context)
+    return redirect('admin_login')
 
-        messages.success(request, 'Category Edited.')
-        return redirect('manage_category')
-    return render(request, 'admin_side/edit_category.html', context)
 
 ################### Category Available ###############################
 
 def list_category(request, category_id):
-    category = Category.objects.get(id = category_id)
-    category.is_active = True
-    category.save()
-    return redirect('manage_category')
+    if request.user.is_authenticated and request.user.is_superadmin:
+        category = Category.objects.get(id = category_id)
+        category.is_active = True
+        category.save()
+        return redirect('manage_category')
+    return redirect('admin_login')
+
 
 ################### Category Unavaliable ###############################
 
 def unlist_category(request, category_id):
-    category = Category.objects.get(id = category_id)
-    category.is_active = False
-    category.save()
-    return redirect('manage_category')
+    if request.user.is_authenticated and request.user.is_superadmin:
+        category = Category.objects.get(id = category_id)
+        category.is_active = False
+        category.save()
+        return redirect('manage_category')
+    return redirect('admin_login')
+
         
 
 

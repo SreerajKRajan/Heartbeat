@@ -8,8 +8,10 @@ from django.utils import timezone
 import datetime
 import random
 from . models import Account
+# from django.db.models import Q
 from django.core.mail import send_mail
 from product_management.models import *
+from django.http import JsonResponse
 
 
 # Create your views here.
@@ -17,14 +19,14 @@ from product_management.models import *
 
 def shop(request):
     products = Product.objects.filter(is_available=True)
-    category = Category.objects.all()
+    category = Category.objects.filter(is_active=True)
     brand    = Brand.objects.all()
     colour   = Colour.objects.all()
 
     dicti = {}
 
     for product in products:
-        product_variant = Product_Variant.objects.filter(product=product, is_active = True).order_by("created_at").first()
+        product_variant = Product_Variant.objects.filter(product=product, is_active = True,product__category__is_active = True).order_by("created_at").first()
 
         if product_variant:
             variant_images = Additional_Product_Image.objects.filter(product_variant=product_variant)
@@ -47,45 +49,37 @@ def shop(request):
 def categories(request,category_id):
     category = Category.objects.get(id = category_id)
     product_variant = 0
-    product_variant = Product_Variant.objects.filter(product__category = category)
+
+    product_variant = Product_Variant.objects.filter(is_active = True, product__category = category, product__is_available = True)
+    for i in product_variant:
+        print("PPPPPP",i.product.product_name)
     print("product variant",product_variant)
-    cat = Category.objects.all()
+    cat = Category.objects.filter(is_active = True)
     context = {"category": cat,
                "product_variant":product_variant,
                }
     return render(request, 'user_side/shop.html', context)
 
 
-def product_details(request,product_id):
-    product = Product_Variant.objects.get(id = product_id)
+def product_details(request, product_id):
+    product = Product_Variant.objects.get(id=product_id)
     variant_images = Additional_Product_Image.objects.filter(product_variant=product)
-    print(variant_images)
 
-    
-    
+    # Get related products based on the category of the current product
+    related_products = Product_Variant.objects.filter(
+        product__category=product.product.category  # Filter products by the same category
+    ).exclude(id=product_id)  # Exclude the current product from related products
 
-    return render(request, 'user_side/product_detail.html',{"product":product ,'variant_images':variant_images})
+    context = {
+        "product": product,
+        'variant_images': variant_images,
+        'related_products': related_products  # Pass related products to the template
+    }
+    return render(request, 'user_side/product_detail.html', context)
+
 
 @never_cache
 def signup_page(request):
-    # if request.user.is_authenticated:
-    #     return redirect('home')
-
-    # def send_otp(email):
-    # otp_value = str(random.randint(100000, 999999))
-    # request.session['otp_session'] = otp_value
-    # request.session['otp_timestamp'] = str(timezone.now())
-    # request.session['email_session'] = email
-    # request.session.modified = True
-    # send_mail(
-    #     'OTP verification from Heartbeat',
-    #     f"Dear User, \n\n One-Time Password (OTP) for verification is:{otp_value}. \n\n Please use above OTP to complete your signup to Heartbeat website",
-    #     'heartbeatofficial2820@gmail.com',
-    #     [email],
-    #     fail_silently=False
-    # )
-
-
     if request.method == "POST":
         uname = request.POST.get('username')
         email = request.POST.get('email')
@@ -154,164 +148,40 @@ def signup_page(request):
             [email],
             fail_silently=False
     )
-        
-
-        # request.session['username'] = uname
-        # request.session['password'] = pass1
-        # request.session['email_session'] = email
-        # user = User.objects.create_user(username=uname,password=pass1,email=email)
-        # user.save()
-
-        
-    #     return redirect('user_app:user_otp')
-    # return render(request, 'user_side/signup.html')
-
-
-    #     else:
-    #         my_user = User.objects.create_user(uname, email, pass1)
-    #         my_user.save()
-    #         print(my_user)
-    #         return redirect('login')
-        
-    # return render(request, 'user_side/signup.html')
-
-
-# def user_otp(request):
-    # def send_otp(email):
-    #     otp_value = random.randint(100000, 999999)
-    #     request.session['otp_session'] = otp_value
-    #     request.session['otp_timestamp'] = timezone.now()
-    #     request.session['email_session'] = email
-    #     request.session.modified = True
-
-
-        # send_mail(
-        #     'OTP verification from Heartbeat',
-        #     f"Dear User, \n\n One-Time Password (OTP) for verification is:{otp_value}. \n\n Please use above OTP to complete your signup to Heartbeat website",
-        #     'heartbeatofficial2820@gmail.com',
-        #     [email],
-        #     fail_silently=False
-        # )
     
         return render(request,'user_side/otp.html', {'email':email})
     return render(request,'user_side/signup.html')
-from django.http import JsonResponse
-from django.core.mail import send_mail
-from django.http import JsonResponse
+
+
 
 @never_cache
 def resend_otp(request):
     if request.method == "POST":
-        email = request.POST.get('email')
+        # Retrieve the email from the session
+        email = request.session.get('email_session')
         if email:
-            if Account.objects.filter(email=email).exists():
-                # Generate a new OTP value
-                new_otp_value = random.randint(100000, 999999)
+            # Generate a new OTP value
+            new_otp_value = str(random.randint(100000, 999999))
 
-                # Send OTP via email
-                subject = "Resend OTP - Heartbeatofficial"
-                sender_email = "heartbeatofficial2820@gmail.com"
-                message = f"Dear Customer,\n\nYour new OTP for Heartbeat is: {new_otp_value}\n\nThank you for choosing Heartbeat."
-                send_mail(subject, message, sender_email, [email])
+            # Send OTP via email
+            subject = "Resend OTP - Heartbeatofficial"
+            sender_email = "heartbeatofficial2820@gmail.com"
+            message = f"Dear Customer,\n\nYour new OTP for Heartbeat is: {new_otp_value}\n\nThank you for choosing Heartbeat."
+            send_mail(subject, message, sender_email, [email])
 
-                # Update session with the new OTP value
-                request.session['otp_session'] = new_otp_value
-                request.session['otp_timestamp'] = timezone.now()
-                request.session['email_session'] = email
-                request.session.modified = True
+            # Update session with the new OTP value
+            request.session['otp_session'] = new_otp_value
+            request.session['otp_timestamp'] = str(timezone.now())
+            request.session.modified = True
 
-                if request.is_ajax():
-                    return JsonResponse({'status': 'success'})
-                else:
-                    messages.success(request, "OTP has been resent. Check your email.")
-                    return redirect('user_app:otp_verification')
-            else:
-                if request.is_ajax():
-                    return JsonResponse({'status': 'error', 'message': 'User with this email does not exist.'})
-                else:
-                    messages.warning(request, "User with this email does not exist.")
-                    return redirect('user_app:signup_page')
+            return JsonResponse({'status': 'success'})  # Return success JSON response
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Email not found in session.'})  # Return error JSON response
 
-    if request.is_ajax():
-        return JsonResponse({'status': 'error', 'message': 'Invalid request.'})
-    else:
-        return redirect('user_app:signup_page')
+    return JsonResponse({'status': 'error', 'message': 'Invalid request.'})  # Return error JSON response
 
 
 
-
-
-# @never_cache
-# def otp_verification(request):
-#     uname = request.session.get('username')
-#     email_session = request.session.get('email')
-#     password = request.session.get('password')
-#     print(uname)
-#     print(email_session)
-#     if request.method == "POST":
-#         # uname = request.POST.get('username')
-#         # email = request.POST.get('email')
-#         # pass1 = request.POST.get('password1')
-                                 
-#         otp_entered = request.POST.get('otp_entered')
-#         # if 'otp_session' in request.session:
-#         otp_session = request.session.get('otp_session')
-#         # if 'email_session' in request.session:
-
-#         email = request.session.get('email_session')
-#         print(otp_entered,otp_session)
-
-#         if str(otp_entered) == str(otp_session):
-#             customer = Account.objects.get(email = email)
-#             customer.is_active = True
-#             customer.save()
-
-#             user = authenticate(request, email = email, password = password)
-#             login(request,user)
-
-#             subject = "Successful Login - Heartbeatofficial"
-#             sender_email = "heartbeatofficial2820@gmail.com"
-#             message = "Dear Customer,\n\nYour login to Heatbeat was successful.\n\nThank you for choosing Heartbeat."
-#             send_mail(subject, message, sender_email, [email])
-#             # login(request, customer)
-#             if request.GET.get('next'):
-#                 return redirect(request.GET.get('next'))
-#             else:
-#                 return redirect('user_app:home')
-#         else:
-#             messages.error(request, "Wrong Entry")
-
-#     if 'otp_session' in request.session:
-#         otp_timestamp = request.session.get('otp_timestamp')
-#         current_time = timezone.now()
-#         time_difference = current_time - otp_timestamp
-#         time_difference_minutes = time_difference.total_seconds() / 60
-
-#         # If more than 5 minutes have passed, generate and send a new OTP
-#         # if time_difference_minutes > 5:
-#         #     def send_otp(email):
-#         #         otp_value = random.randint(100000, 999999)
-#         #         request.session['otp_session'] = otp_value
-#         #         request.session['otp_timestamp'] = timezone.now()
-#         #         request.session['email_session'] = email
-#         #         request.session.modified = True
-
-#         #     send_otp(email)
-#         #     messages.warning(request, "OTP expired. A new OTP has been send to your email.")
-
-
-#         # context = {'email': email}
-
-#     return render(request, 'user_side/otp.html', {'email': email})
-#         #     customer = authenticate(request, username = uname, password = password)
-#         #     print(customer)
-#         #     if customer is not None:
-#         #         login(request, customer)
-#         #         return redirect('user_app:home')
-#         #     else:
-#         #         messages.error(request, "Invalid OTP. Please enter again.")
-#         #         return redirect('user_app:otp_verification')
-#         # return render(request, 'user_side:otp.html',{'email': email_session})
 
 @never_cache
 def otp_verification(request):
@@ -392,7 +262,6 @@ def login_page(request):
     return render(request, 'user_side/login.html')
 
 
-from django.contrib.auth import logout
 
 @never_cache
 def home(request):
@@ -402,13 +271,32 @@ def home(request):
             logout(request)  # Log out the user
             return redirect('user_app:login_page')
         
-        # Check if the user is a superuser
-        if request.user.is_superuser:
-            return redirect('admin')
-        else:
-            return render(request, 'user_side/home.html')
+    products = Product.objects.filter(is_available=True)
+    category = Category.objects.filter(is_active=True)
+    brand    = Brand.objects.all()
+    colour   = Colour.objects.all()
+
+    dicti = {}
+
+    for product in products:
+        product_variant = Product_Variant.objects.filter(product=product, is_active = True).order_by("created_at").first()
+
+        if product_variant:
+            variant_images = Additional_Product_Image.objects.filter(product_variant=product_variant)
+            dicti[product_variant] = list(variant_images)
+
+    print(dicti)
+
+    context ={
+        'category': category,
+        'brand':brand,
+        'products':products,
+        'colour': colour,
+        'product_variant': dicti
+
+    }
     
-    return render(request, 'user_side/home.html')
+    return render(request, 'user_side/home.html', context)
 
 
 @never_cache

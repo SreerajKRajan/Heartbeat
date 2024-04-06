@@ -6,21 +6,22 @@
         <div class="col-9">
             <div class="content-header">
                 <h2 class="content-title">Add New Product</h2>
+ 
 
             </div>
+            {% if messages %}
+            <div class="col-12">
+                <div class="alert alert-info" role="alert">
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
         </div>
 
-        {% if messages %}
-        <div class="col-12">
-            <div class="alert alert-info" role="alert">
-                <ul>
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    {% endif %}
         <!-- Add new product form  -->
         <form method="POST" action="{% url 'add_product' %}">
             {% csrf_token %}

@@ -39,6 +39,20 @@ Input, textarea : 14px/1.6 '', Arial, sans-serif;
 /*//////////////////////////////////////////////////////////////////
 [ FONT ]*/
 
+.logo-text {
+  font-family: 'Permanent Marker', sans-serif; /* Replace 'Your Font Name' with the name of the desired font */
+  font-size: 28px; /* Adjust the font size as needed */
+  font-weight: bold; /* Adjust the font weight as needed */
+  background: linear-gradient(to right, #d1cccc, #726d6d); /* Gradient from white to black */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Add any additional styles such as text shadow, letter spacing, etc. */
+}
+
+
+
+
 @font-face {
   font-family: Poppins-Regular;
   src: url('../fonts/Poppins/Poppins-Regular.ttf'); 

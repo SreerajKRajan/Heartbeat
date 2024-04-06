@@ -23,7 +23,8 @@
                         </div>
                         <div class="mb-4">
                             <label class="form-label">SKU ID</label>
-                            <input type="text" placeholder="Type here" class="form-control" name="sku_id" value="{{ old_product.sku_id }}">
+                            <input type="text" placeholder="Type here" class="form-control" name="sku_id" id="skuid" value="{{ old_product.sku_id }}">
+                            <p style="color: red;" id="err-skuid"></p>
                         </div>
                         <div class="row gx-3">
                             <div class="col-md-4 mb-3">
@@ -43,18 +44,21 @@
                         <div class="row gx-3">
                             <div class="col-md-4  mb-3">
                                 <label for="product_size" class="form-label">Max Price</label>
-                                <input type="text" placeholder="Type here" class="form-control" id="product_size"
+                                <input type="text" placeholder="Type here" class="form-control" id="max_price"
                                     name="max_price" value="{{ old_product.max_price }}">
+                                    <p style="color: red;" id="err-max-price"></p>
                             </div>
                             <div class="col-md-4  mb-3">
                                 <label for="product_size" class="form-label">Sale price</label>
-                                <input type="text" placeholder="Type here" class="form-control" id="product_size"
+                                <input type="text" placeholder="Type here" class="form-control" id="sale_price"
                                     name="sale_price" value="{{ old_product.sale_price }}">
+                                <p style="color: red;" id="err-sale-price"></p>
                             </div>
                             <div class="col-md-4  mb-3">
                                 <label for="product_size" class="form-label">Stock</label>
-                                <input type="text" placeholder="Type here" class="form-control" id="product_size"
+                                <input type="text" placeholder="Type here" class="form-control" id="stock"
                                     name="stock" value="{{ old_product.stock }}">
+                                <p style="color: red;" id="err-stock"></p>
                             </div>
                         </div>
                     </div>
@@ -84,7 +88,7 @@
                             </div>
                         </div>                        
                         <div>
-                            <button class="btn-dark  btn-md rounded font-sm hover-up" style="margin-left: 20px;">SAVE
+                            <button type="submit" id="add-btn" class="btn-dark  btn-md rounded font-sm hover-up" style="margin-left: 20px;">SAVE
                             </button>
                         </div>
                     </div> <!-- card end// -->
@@ -93,5 +97,80 @@
         </form>
     </div>
 </section>
+
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("add-btn").addEventListener("click", function (event) {
+            let preventDefault = false;  // Flag to determine whether to prevent the default behavior
+    
+            const skuidRegex = /^[^\s].*[^\s]$/;
+            const priceRegex = /^\d*\.?\d+$/;
+
+            function validateSkuid() {
+            const skuidInput = document.getElementById("skuid");
+            const skuId = skuidInput.value;
+            if (skuidRegex.test(skuId)) {
+                return true;
+            } else {
+                document.getElementById("err-skuid").textContent = "Please enter a valid SKU ID";
+                preventDefault = true;  // Set the flag to true if validation fails
+                return false;
+            }
+        }
+
+            function validateMaxPrice() {
+                const maxPriceInput = document.getElementById("max_price");
+                const maxPrice = maxPriceInput.value;
+                if (priceRegex.test(maxPrice)) {
+                    return true;
+                } else {
+                    document.getElementById("err-max-price").textContent = "Please enter a valid price";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return false;
+                }
+            }
+    
+    
+            function validateSalePrice() {
+                const salePriceInput = document.getElementById("sale_price");
+                const salePrice = salePriceInput.value;
+                if (priceRegex.test(salePrice)) {
+                    return true;
+                } else {
+                    document.getElementById("err-sale-price").textContent = "Please enter a valid price";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return false;
+                }
+            }
+
+            function validateStock() {
+                const stockInput = document.getElementById("stock");
+                const stock = stockInput.value;
+                if (priceRegex.test(stock)) {
+                    return true;
+                } else {
+                    document.getElementById("err-stock").textContent = "Please enter a valid number";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return false;
+                }
+            }
+    
+    
+            // Call validation functions
+            validateSkuid();
+            validateMaxPrice();
+            validateSalePrice();
+            validateStock();
+    
+            // Prevent the default behavior only if any of the validations fail
+            if (preventDefault) {
+                event.preventDefault();
+            }
+        });
+    });
+    
+    </script>
 
 {% endblock content %}

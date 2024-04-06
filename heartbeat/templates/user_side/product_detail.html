@@ -320,13 +320,13 @@
 	<!-- breadcrumb -->
 	<div class="container">
 		<div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
-			<a href="index.html" class="stext-109 cl8 hov-cl1 trans-04">
+			<a href="{% url "user_app:home" %}" class="stext-109 cl8 hov-cl1 trans-04">
 				Home
 				<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
 			</a>
 
-			<a href="product.html" class="stext-109 cl8 hov-cl1 trans-04">
-				Men
+			<a href="{% url "user_app:shop" %}" class="stext-109 cl8 hov-cl1 trans-04">
+				Shop
 				<i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
 			</a>
 
@@ -356,28 +356,27 @@
 									</div>
 								</div>
 								{% endfor %}		
-
+								
 							</div>
 						</div>
-						<a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="{{i}}">
+						<!--<a class="flex-c-m size-108 how-pos1 bor0 fs-16 cl10 bg0 hov-btn3 trans-04" href="{{i}}">
 							<i class="fa fa-expand"></i>
-						</a>
+						</a>-->
 					</div>
 				</div>
 					
 				<div class="col-md-6 col-lg-5 p-b-30">
 					<div class="p-r-50 p-t-5 p-lr-0-lg">
 						<h4 class="mtext-105 cl2 js-name-detail p-b-14">
-							{{product.product.product_name}}
+							{{ product.product.product_name }}
 						</h4>
 
 						<span class="mtext-106 cl2">
-							{{product.product.base_price}}
+							{{ product.product.base_price }}
 						</span>
 
 						<p class="stext-102 cl3 p-t-23">
-							Nulla eget sem vitae eros pharetra viverra. Nam vitae luctus ligula. Mauris consequat ornare feugiat.
-						</p>
+							{{ product.product.description }}						</p>
 						
 						<!--  -->
 						<div class="p-t-33">
@@ -488,7 +487,7 @@
 						<div class="tab-pane fade show active" id="description" role="tabpanel">
 							<div class="how-pos2 p-lr-15-md">
 								<p class="stext-102 cl6">
-									Aenean sit amet gravida nisi. Nam fermentum est felis, quis feugiat nunc fringilla sit amet. Ut in blandit ipsum. Quisque luctus dui at ante aliquet, in hendrerit lectus interdum. Morbi elementum sapien rhoncus pretium maximus. Nulla lectus enim, cursus et elementum sed, sodales vitae eros. Ut ex quam, porta consequat interdum in, faucibus eu velit. Quisque rhoncus ex ac libero varius molestie. Aenean tempor sit amet orci nec iaculis. Cras sit amet nulla libero. Curabitur dignissim, nunc nec laoreet consequat, purus nunc porta lacus, vel efficitur tellus augue in ipsum. Cras in arcu sed metus rutrum iaculis. Nulla non tempor erat. Duis in egestas nunc.
+									{{ product.product.description }}						</p>
 								</p>
 							</div>
 						</div>
@@ -663,25 +662,24 @@
 			<!-- Slide2 -->
 			<div class="wrap-slick2">
 				<div class="slick2">
+					{% for related_product in related_products %}
 					<div class="item-slick2 p-l-15 p-r-15 p-t-15 p-b-15">
 						<!-- Block2 -->
 						<div class="block2">
 							<div class="block2-pic hov-img0">
-								<img src="{% static 'user_side/images/product-01.jpg' %}" alt="IMG-PRODUCT">
+								<a href="{% url 'user_app:product_details' related_product.id %}" >
+								<img src="{{ related_product.thumbnail_image.url }}" alt="{{ related_product.product.product_name }}">
 
-								<a href="#" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1">
-									Quick View
-								</a>
 							</div>
 
 							<div class="block2-txt flex-w flex-t p-t-14">
 								<div class="block2-txt-child1 flex-col-l ">
-									<a href="product-detail.html" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-										Esprit Ruffle Shirt
+									<a href="{% url 'user_app:product_details' related_product.id %}" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+										{{ related_product.product.product_name }}
 									</a>
 
 									<span class="stext-105 cl3">
-										$16.64
+										Price: ${{ related_product.sale_price }}
 									</span>
 								</div>
 
@@ -694,6 +692,7 @@
 							</div>
 						</div>
 					</div>
+					{% endfor %}
 
 	
 				</div>
@@ -1019,16 +1018,21 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
 
 
+	
+
 	<script>
 		jQuery.noConflict();
-		(function($) {
-			// Your ElevateZoom initialization code here
-			$('.zoom').elevateZoom({
-				// ElevateZoom options
-			});
-		})(jQuery);
+    (function($) {
+        $(document).ready(function() {
+            // Loop through each element with class 'zoom' and initialize ElevateZoom
+            $('.zoom').each(function() {
+                $(this).elevateZoom({
+                    // ElevateZoom options
+                });
+            });
+        });
+    })(jQuery);
 	</script>
-	
 
 
 

@@ -13,7 +13,7 @@
 
 <style>
     .image-container {
-        background: url('{% static "user_side/login/image/bg_login.jpeg" %}') center no-repeat;
+        background: url('{% static "user_side/login/image/neww.jpeg" %}') center no-repeat;
         background-size: cover;
         height: 100vh;
     }
@@ -92,45 +92,56 @@
             setTimeout(updateTimer, 1000);
             document.getElementById('resend-otp-btn').style.display = "none";
             document.getElementById("message").style.display = "none"
+            document.getElementById("otp").style.display = "block"
+            document.getElementById("verifybtn").style.display = "block"
         }
     }
-    // Add an event listener to the "Resend OTP" link
-    document.getElementById('resend-otp-btn').addEventListener('click', function (event) {
-        // Prevent the default behavior of the link
-        event.preventDefault();
-    
-        // Make an AJAX request to resend the OTP
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', '{% url "user_app:resend_otp" %}', true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) {
-                    // Handle the response
-                    var response = JSON.parse(xhr.responseText);
-                    if (response.status === 'success') {
-                        // Handle success (e.g., show a success message)
-                        console.log('OTP resent successfully.');
-                        alert("OTP has been resent. Check your email.");
-                        // Restart the timer
-                        timerDuration = 60;
-                        updateTimer();
-                    } else {
-                        // Handle error (e.g., show an error message)
-                        console.error('Error resending OTP.');
-                        alert("Error resending OTP.");
-                    }
+            // Add an event listener to the "Resend OTP" link
+            document.getElementById('resend-otp-btn').addEventListener('click', function (event) {
+            // Prevent the default behavior of the link
+            event.preventDefault();
+
+            // Extract CSRF token from the HTML
+            var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+            // Make an AJAX request to resend the OTP
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '{% url "user_app:resend_otp" %}', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.setRequestHeader('X-CSRFToken', csrfToken);  // Include CSRF token in the request headers
+            xhr.onreadystatechange = function () {
+    if (xhr.readyState == 4) {
+        if (xhr.status == 200) {
+            try {
+                var response = JSON.parse(xhr.responseText);
+                if (response.status === 'success') {
+                    // Handle success
+                    console.log('OTP resent successfully.');
+                    alert("OTP has been resent. Check your email.");
+                    timerDuration = 30; // Restart the timer
+                    updateTimer();
                 } else {
-                    // Handle error (e.g., show an error message)
-                    console.error('Error resending OTP. Server error.');
-                    alert("Error resending OTP. Server error.");
+                    // Handle error
+                    console.error('Error resending OTP: ' + response.message);
+                    alert("Error resending OTP: " + response.message);
                 }
+            } catch (error) {
+                // Handle parsing error
+                console.error('Error parsing JSON response: ' + error);
+                alert("Error parsing JSON response.");
             }
-        };
-    
-        // Send the request
-        xhr.send();
-    });
+        } else {
+            // Handle server error
+            console.error('Error resending OTP. Server error.');
+            alert("Error resending OTP. Server error.");
+        }
+    }
+};
+
+            // Send the request
+            xhr.send();
+        });
+
     
 
     // Function to format the remaining time in MM:SS format
