@@ -32,7 +32,7 @@ def shop(request):
             variant_images = Additional_Product_Image.objects.filter(product_variant=product_variant)
             dicti[product_variant] = list(variant_images)
 
-    print(dicti)
+    # print(dicti)
 
     context ={
         'category': category,
@@ -51,9 +51,9 @@ def categories(request,category_id):
     product_variant = 0
 
     product_variant = Product_Variant.objects.filter(is_active = True, product__category = category, product__is_available = True)
-    for i in product_variant:
-        print("PPPPPP",i.product.product_name)
-    print("product variant",product_variant)
+    # for i in product_variant:
+    #     print("PPPPPP",i.product.product_name)
+    # print("product variant",product_variant)
     cat = Category.objects.filter(is_active = True)
     context = {"category": cat,
                "product_variant":product_variant,
@@ -94,15 +94,9 @@ def signup_page(request):
             messages.warning(request, 'Username cannot have whitespace')
             return redirect('user_app:signup_page')
         
-        if not uname:
-                messages.warning(request, 'Username cannot be empty')
-                return redirect('user_app:signup_page')
-        if not pass1:
-                messages.warning(request, 'Password cannot be empty')
-                return redirect('user_app:signup_page')
-        if not pass2:
-                messages.warning(request, 'Password cannot be empty')
-                return redirect('user_app:signup_page')
+        if not all([uname, pass1, pass2, email]):
+            messages.warning(request, "Please fill the all fields")
+            return redirect('user_app:signup_page')
         
         if Account.objects.filter(email = email).exists():
             messages.warning(request, 'User already exists')
@@ -124,7 +118,7 @@ def signup_page(request):
             return redirect('user_app:signup_page')
         
         if len(pass1) < 8:
-            messages.warning(request, 'Password should be of 8 character')
+            messages.warning(request, 'Password should be of 8 characters')
             return redirect('user_app:signup_page')
         
         else:
@@ -285,7 +279,7 @@ def home(request):
             variant_images = Additional_Product_Image.objects.filter(product_variant=product_variant)
             dicti[product_variant] = list(variant_images)
 
-    print(dicti)
+    # print(dicti)
 
     context ={
         'category': category,
@@ -300,8 +294,73 @@ def home(request):
 
 
 @never_cache
-def forget(request):
-    return render(request, 'user_side/forget.html')
+def forgot_password(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        pass1 = request.POST.get('pass1')
+        pass2 = request.POST.get('pass2')
+        if not all([email,pass1, pass2]):
+            messages.warning(request, "Please fill the all fields")
+            return redirect('user_app:forgot_password')
+
+        if pass1 != pass2:
+            messages.warning(request, "Password is incorrect")
+            return redirect('user_app:forgot_password')
+        if len(pass1) < 8:
+            messages.warning(request, "Password should be of 8 characters")
+            return redirect('user_app:forgot_password')
+        if ' ' in pass1:
+            messages.warning(request, 'Password cannot have whitespaces')
+            return redirect('user_app:forgot_password')
+        
+        if Account.objects.filter(email = email).exists():
+            otp_value = str(random.randint(100000, 999999))
+            request.session['otp_session'] = otp_value
+            request.session['email_session'] = email
+            request.session['pass_session'] = pass1
+            request.session.modified = True
+
+            send_mail(
+                'OTP verification from Heartbeat',
+                f"Dear User, \n\n One-Time Password (OTP) for verification is:{otp_value}. \n\n Please use above OTP to complete your reset password",
+                "heartbeatofficial2820@gmail.com",
+                [email],
+                fail_silently=False
+            )
+            return render(request, "user_side/forgot_otp.html", {'email': email})
+        else:
+            messages.warning(request, "User does not exists with this email address")
+            return redirect('user_app:forgot_password')
+    return render(request,'user_side/forgot_password.html')
+
+
+@never_cache
+def forgot_otp_verification(request):
+    email_session = request.session.get('email_session')
+    pass_session = request.session.get('pass_session')
+    if request.method == "POST":
+        otp_entered = request.POST.get('otp_entered')
+        otp_session = request.session.get('otp_session')
+
+        if str(otp_entered) == str(otp_session):
+            new_pass = Account.objects.get(email = email_session)
+            new_pass.set_password(pass_session)
+            new_pass.save()
+            print("Password updated successfully")
+            return redirect('user_app:login_page')
+        else:
+            messages.warning(request, "Wrong Entry")
+            return render(request, 'user_side/forgot_otp.html')
+    return render(request, 'user_side/forgot_otp.html')
+
+
+
+    
+        
+
+
+
+
 @never_cache
 def user_logout(request):
     if request.user.is_authenticated:

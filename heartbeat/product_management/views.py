@@ -15,8 +15,6 @@ def products_list(request):
         category = Category.objects.all()
         products = Product.objects.all().order_by('-id')
 
-        
-
         category_id = request.GET.get('category_id')  # Get the selected category ID from the request
         if category_id != "0":
             product1 = Product.objects.filter(id=category_id).first()
