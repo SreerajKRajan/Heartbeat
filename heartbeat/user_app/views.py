@@ -7,11 +7,13 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 import datetime
 import random
-from . models import Account
+from . models import *
+from django.shortcuts import get_object_or_404
 # from django.db.models import Q
 from django.core.mail import send_mail
 from product_management.models import *
 from django.http import JsonResponse
+import json
 
 
 # Create your views here.
@@ -77,6 +79,114 @@ def product_details(request, product_id):
     }
     return render(request, 'user_side/product_detail.html', context)
 
+def user_profile(request):
+    if request.user.is_authenticated:
+        user = request.user
+        user_address = Address.objects.filter(account=user)
+        context = {
+            'user': user,
+            'user_address': user_address
+        }
+
+        return render(request, 'user_side/user_profile.html', context)
+    return redirect("user_app:home")
+
+@login_required
+@never_cache 
+def address(request):
+    user = request.user.id
+    user_address = Address.objects.filter(account=user).order_by('-created_at')
+    user_detail= Account.objects.filter(id=user)
+    # order_dtails=OrderProduct.objects.filter(user=user).count()
+
+   
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        selected_address_id = data.get('addressId')
+
+        # print(selected_address_id)
+        if selected_address_id:
+            try:
+                selected_address = Address.objects.get(pk=selected_address_id)
+                selected_address.is_default = True
+                selected_address.save()
+
+                # Update other addresses to set is_default=False
+                Address.objects.filter(account=user).exclude(pk=selected_address_id).update(is_default=False)
+
+                return JsonResponse({'success': True, 'message': 'Address set as default successfully'})
+            except Address.DoesNotExist:
+                return JsonResponse({'success': False, 'message': 'Selected address not found'})
+        else:
+            return JsonResponse({'success': False, 'message': 'No address ID provided'})
+
+    context = {'user_address': user_address,
+               'user': user_detail,
+            #    'order_dtails' : order_dtails
+            }
+
+    
+        
+    return render(request,'user_side/address.html',context)
+
+
+def add_address(request):
+    if request.method == "POST":
+        first_name       = request.POST.get('first_name')
+        last_name        = request.POST.get('last_name')
+        phone_number     = request.POST.get('phone_number')
+        town_city        = request.POST.get('town_city')
+        street_address   = request.POST.get('street_address')
+        district         = request.POST.get('district')
+        state            = request.POST.get('state')
+        pin_code         = request.POST.get('pin_code')
+
+        user = request.user
+        address = Address.objects.create(account=user,first_name=first_name,last_name=last_name,phone_number=phone_number,town_city=town_city,street_address=street_address,district=district,state=state,pin_code=pin_code)
+        make_default = request.POST.get('make_default')
+        is_default = make_default == 'on'
+        address.is_default = is_default
+        address.save()
+        return redirect('user_app:address')
+        
+    return render(request, 'user_side/add_address.html')
+
+@login_required
+@never_cache
+def edit_address(request, id):
+    user = request.user
+    address = get_object_or_404(Address, id=id)
+    
+    if request.method == 'POST':
+
+        address.first_name = request.POST.get('first_name')
+        address.last_name = request.POST.get('last_name')
+        address.phone_number = request.POST.get('phone_number')
+        address.street_address = request.POST.get('street_address')
+        address.town_city = request.POST.get('town_city')
+        address.district = request.POST.get('district')
+        address.state = request.POST.get('state')
+        address.pin_code = request.POST.get('pin_code')
+        address.save()
+
+
+        return redirect('user_app:address')
+
+    context = {
+        'address': address
+    }
+    return render(request, 'user_side/edit_address.html', context)
+
+
+
+@login_required
+@never_cache
+def delete_address(request, id):
+
+    addresses = get_object_or_404(Address, id=id)
+    addresses.delete()
+    
+    return redirect('user_app:address')
 
 @never_cache
 def signup_page(request):

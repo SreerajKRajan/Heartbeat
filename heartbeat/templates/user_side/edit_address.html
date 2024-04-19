@@ -1,0 +1,212 @@
+{% extends 'user_side/base2.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="heading" style="text-align: center; font-weight: bold; font-family: 'Merriweather', sans-serif; margin-bottom: 20px">Edit Address</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3 row">
+                    <div class="col-sm-6">
+                        <label for="first_name" class="form-label">First Name</label>
+                        <input type="text" onchange="validateFirstNam(e)" class="form-control darker-border" id="efn" name="first_name" value="{{address.first_name}}">
+                        <p style="color: red;" id="err-efn"></p>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control darker-border" id="eln" name="last_name" value="{{address.last_name}}">
+                        <p style="color: red;" id="err-eln"></p>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-sm-6">
+                        <label for="phone_number" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control darker-border" id="eph" name="phone_number" value="{{address.phone_number}}">
+                        <p style="color: red;" id="err-eph"></p>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="town_city" class="form-label">Town/City</label>
+                        <input type="text" class="form-control darker-border" id="edit_town_city" name="town_city" value="{{address.town_city}}">
+                        <p style="color: red;" id="err-etc"></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="street_address" class="form-label">Street Address</label>
+                    <textarea type="text" class="form-control darker-border" id="ed_street_address" name="street_address">{{address.street_address}}</textarea>
+                    <p style="color: red;" id="err-eadd"></p>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-sm-6">
+                        <label for="state" class="form-label">District</label>
+                        <input type="text" class="form-control darker-border" id="editdist" name="district" value="{{address.district}}">
+                        <p style="color: red;" id="err-edi"></p>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="country_region" class="form-label">State</label>
+                        <input type="text" class="form-control darker-border" id="edit_state" name="state" value="{{address.state}}">
+                        <p style="color: red;" id="err-est"></p>
+                    </div> 
+                </div>
+                <div class="mb-3">
+                    <label for="zip_code" class="form-label">PIN Code</label>
+                    <input type="text" class="form-control darker-border" id="edit_pin_code" name="pin_code" value="{{address.pin_code}}">
+                    <p style="color: red;" id="err-epin"></p>
+                </div>
+                {% comment %} <div class="mb-3">
+                    <label for="user_image" class="form-label">User Image</label>
+                    <input type="file" class="form-control darker-border" id="user_image" name="user_image">
+                </div> {% endcomment %}
+                <div class="mb-3">
+                    <button type="submit" id="update-btn" class="btn btn-dark darker-border">Update Address</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+          let preventDefault = false;  // Flag to determine whether to prevent the default behavior
+    
+            const nameRegex = /^(?!.* $)[a-zA-Z]+(?: [a-zA-Z]+)*$/;
+            const lastNameRegex = /^\s*[A-Za-z]+(?:\s+[A-Za-z]+)*\s*$/;
+            const phoneRegex = /^\d{10}$/;
+            const addressRegex = /^[^\s].*[^\s]$/;
+            const pincodeRegex = /^\d{6}$/;
+
+
+            function validateFirstName() {
+                const firstNameInput = document.getElementById("efn");
+                preventDefault = false;
+                const firstName = firstNameInput.value;
+                
+                console.log(firstName,'fffffffff');
+
+                if (nameRegex.test(firstName)) {
+                    document.getElementById("err-efn").textContent = "";
+                    return false;
+                } else {
+                    document.getElementById("err-efn").textContent = "Please enter a valid name";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+
+
+
+
+
+            function validateLastName() {
+                const lastNameInput = document.getElementById("eln");
+                const lasttName = lastNameInput.value;
+                if (lastNameRegex.test(lasttName)) {
+                    return false;
+                } else if(lasttName === ""){
+                    return false;
+
+                }else {
+                    document.getElementById("err-eln").textContent = "Please enter a valid name";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+
+            function validatePhone() {
+                const phoneInput = document.getElementById("eph");
+                const phoneNumber = phoneInput.value;
+                if (phoneRegex.test(phoneNumber)) {
+                    return false;
+                } else {
+                    document.getElementById("err-eph").textContent = "Please enter a valid phone number";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+
+            function validateTown() {
+                const townInput = document.getElementById("edit_town_city");
+                const town = townInput.value;
+                if (nameRegex.test(town)) {
+                    return false;
+                } else {
+                    document.getElementById("err-etc").textContent = "Please enter a valid name";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+
+            function validateDistrict() {
+                const disInput = document.getElementById("editdist");
+                const dis = disInput.value;
+                if (nameRegex.test(dis)) {
+                    return false;
+                } else {
+                    document.getElementById("err-edi").textContent = "Please enter a valid name";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+
+            function validateState() {
+                const stateInput = document.getElementById("edit_state");
+                const state = stateInput.value;
+                if (nameRegex.test(state)) {
+                    return false;
+                } else {
+                    document.getElementById("err-est").textContent = "Please enter a valid name";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+    
+            function validatePincode() {
+                const pinInput = document.getElementById("edit_pin_code");
+                const pincode = pinInput.value;
+                if (pincodeRegex.test(pincode)) {
+                    return false;
+                } else {
+                    document.getElementById("err-epin").textContent = "Please enter a valid PIN code(Must contain 6 digits)";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+    
+            function validateAddress() {
+                const addressInput = document.getElementById("ed_street_address");
+                const address = addressInput.value.trim();
+                if (addressRegex.test(address)) {
+                    return false;
+                } else {
+                    document.getElementById("err-eadd").textContent = "Please enter a valid address";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+
+
+        document.getElementById("update-btn").addEventListener("click", function (event) {
+          
+    
+            // Call validation functions
+            validateFirstName();
+            validateLastName();
+            validatePhone();
+            validateTown();
+            validateAddress();
+            validateDistrict();
+            validateState();
+            validatePincode();
+    
+            // Prevent the default behavior only if any of the validations fail
+            if (preventDefault) {
+                event.preventDefault();
+            }
+        });
+    });
+    
+    </script>
+{% endblock %}

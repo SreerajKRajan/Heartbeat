@@ -1,0 +1,147 @@
+{% extends 'user_side/base2.html' %}
+{% load static %}
+{% block content %}
+
+<div class="d-flex justify-content-center">
+    <div class="menu-desktop justify-content-center">
+        <ul class="main-menu">
+            <li>
+                <a href="{% url 'user_app:user_profile' %}">Profile</a>
+            </li>
+            <li>
+                <a href="{% url 'user_app:address' %}">Address</a>
+            </li>
+            <li>
+                <a href="">Orders</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center">
+    <div class="col-lg-6 col-md-7 mt-5 mb-5">
+        <h4 class="title text-center">Address</h4>
+        <div class="card">
+            <div class="header text-center">
+                <div class="container d-flex justify-content-end align-items-center">
+                    <a href="{% url 'user_app:add_address' %}" style="font-size: 18px; color:black" id="add-form-button"><i class="bi bi-plus-square"></i> Add</a>
+                </div>
+            </div>
+            <div id="address-list">
+                <ul class="list-group list-group-flush">
+                    {% if user_address %}
+                    {% for address in user_address %}
+                    <!-- Single Address Start -->
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <label for="address-{{ address.id }}" class="d-flex">
+                            <div class="flex-column">
+                                <div class="d-flex flex-row align-items-center">
+                                    <input type="radio" class="address-radio mr-2" onclick="sweet_alert('{{ address.id }}')" id="address-{{ address.id }}" name="address" value="{{ address.id }}" {% if address.is_default %}checked{% endif %}>
+                                    <div class="d-flex flex-column">
+                                        <h5>{{ address.first_name }}</h5>
+                                        <div class="d-flex flex-column">
+                                            <span>{{ address.street_address }}</span>
+                                            <span>{{ address.town_city }}, {{ address.district }}, {{ address.state }}, {{ address.pin_code }}</span>
+                                        </div>
+                                        <span>{{ address.phone_number }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                        <div class="d-flex flex-column align-items-center justify-content-center">
+                            <div class="align-content-center fs-7 mb-2">
+                                <a href="{% url 'user_app:delete_address' address.id %}" style="font-size: 20px; color: black;">
+                                    <i class="bi bi-trash"></i>
+                                 </a>
+                            </div>
+                            <a class="fs-7" style="font-size: 20px; color: black;" href="{% url 'user_app:edit_address' id=address.id %}">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                    {% else %}
+                    <li class="list-group-item text-center">
+                        No address found
+                    </li>
+                    {% endif %}
+                    <!-- Single Address End -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+
+function sweet_alert(addressId) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Make this your default address",
+        icon: "question",
+        showCancelButton: false,
+        confirmButtonColor: "#b19361",
+        cancelButtonColor: "#d33",
+    
+    }).then((result) => {
+        // If the user confirms
+        console.log(addressId);
+        if (result.isConfirmed) {
+            // Make a fetch request to update is_default in the backend
+            fetch('/address/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'), // Include CSRF token
+                },
+                // body: JSON.stringify({ 'addressId':addressId }),
+                body: JSON.stringify({ 'addressId':addressId }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Handle the response from the server
+                    console.log(data);
+                    if (data.success) {
+                        // Success message
+                        Swal.fire('Success', data.message, 'success');
+                    } else {
+                        // Error message
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle other errors
+                    Swal.fire('Error', 'An unexpected error occurred', 'error');
+                });
+        }
+
+    });
+
+}
+
+
+
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Check if the cookie name matches the provided name
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+</script>
+
+{% endblock content %}

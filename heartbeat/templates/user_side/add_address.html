@@ -1,0 +1,219 @@
+{% extends 'user_side/base2.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="heading" style="text-align: center; font-weight: bold; font-family: 'Merriweather', sans-serif; margin-bottom: 20px">Add Address</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3 row">
+                    <div class="col-sm-6">
+                        <label for="first_name" class="form-label"><i class="bi bi-asterisk" style="font-size: 8px; color: red; position: relative; top: -5px;"></i>First Name</label>
+                        <input type="text" class="form-control darker-border" id="first_name" name="first_name">
+                        <p style="color: red;" id="err-fn"></p>
+                    </div>
+                    
+                    <div class="col-sm-6">
+                        <label for="last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control darker-border" id="last_name" name="last_name">
+                        <p style="color: red;" id="err-ln"></p>
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-sm-6">
+                        <label for="phone_number" class="form-label"><i class="bi bi-asterisk" style="font-size: 8px; color: red; position: relative; top: -5px;"></i>Phone Number</label>
+                        <input type="tel" class="form-control darker-border" id="phone_number" name="phone_number">
+                        <p style="color: red;" id="err-ph"></p>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="town_city" class="form-label"><i class="bi bi-asterisk" style="font-size: 8px; color: red; position: relative; top: -5px;"></i>Town/City</label>
+                        <input type="text" class="form-control darker-border" id="town_city" name="town_city">
+                        <p style="color: red;" id="err-tc"></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="street_address" class="form-label"><i class="bi bi-asterisk" style="font-size: 8px; color: red; position: relative; top: -5px;"></i>Street Address</label>
+                    <textarea type="text" class="form-control darker-border" id="street_address" name="street_address"></textarea>
+                    <p style="color: red;" id="err-add"></p>
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-sm-6">
+                        <label for="state" class="form-label"><i class="bi bi-asterisk" style="font-size: 8px; color: red; position: relative; top: -5px;"></i>District</label>
+                        <input type="text" class="form-control darker-border" id="district" name="district">
+                        <p style="color: red;" id="err-di"></p>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="country_region" class="form-label"><i class="bi bi-asterisk" style="font-size: 8px; color: red; position: relative; top: -5px;"></i>State</label>
+                        <input type="text" class="form-control darker-border" id="state" name="state">
+                        <p style="color: red;" id="err-st"></p>
+                    </div> 
+                </div>
+                <div class="mb-3">
+                    <label for="zip_code" class="form-label"><i class="bi bi-asterisk" style="font-size: 8px; color: red; position: relative; top: -5px;"></i>PIN Code</label>
+                    <input type="text" class="form-control darker-border" id="pin_code" name="pin_code">
+                    <p style="color: red;" id="err-pin"></p>
+                </div>
+                {% comment %} <div class="mb-3">
+                    <label for="user_image" class="form-label">User Image</label>
+                    <input type="file" class="form-control darker-border" id="user_image" name="user_image">
+                </div> {% endcomment %}
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="is_default" name="is_default">
+                    <label class="form-check-label" for="is_default">
+                        Set as default address
+                    </label>
+                </div>
+                <div class="mb-3">
+                    <button type="submit" id="add-btn" class="btn btn-dark darker-border">Save Address</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+          let preventDefault = false;  // Flag to determine whether to prevent the default behavior
+    
+            const nameRegex = /^(?!.* $)[a-zA-Z]+(?: [a-zA-Z]+)*$/;
+            const lastNameRegex = /^\s*[A-Za-z]+(?:\s+[A-Za-z]+)*\s*$/;
+            const phoneRegex = /^\d{10}$/;
+            const addressRegex = /^[^\s].*[^\s]$/;
+            const pincodeRegex = /^\d{6}$/;
+
+    
+            function validateFirstName() {
+                const firstNameInput = document.getElementById("first_name");
+                preventDefault = false;
+                const firstName = firstNameInput.value;
+                if (nameRegex.test(firstName)) {
+                    return false;
+                } else {
+                    document.getElementById("err-fn").textContent = "Please enter a valid name";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+
+            function validateLastName() {
+                const lastNameInput = document.getElementById("last_name");
+                preventDefault = false;
+                const lasttName = lastNameInput.value;
+                if (lastNameRegex.test(lasttName)) {
+                    return false;
+                } else if(lasttName === ""){
+                    return false;
+
+                }else {
+                    document.getElementById("err-ln").textContent = "Please enter a valid name";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+
+            function validatePhone() {
+                const phoneInput = document.getElementById("phone_number");
+                preventDefault = false;
+                const phoneNumber = phoneInput.value;
+                if (phoneRegex.test(phoneNumber)) {
+                    return false;
+                } else {
+                    document.getElementById("err-ph").textContent = "Please enter a valid phone number";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+
+            function validateTown() {
+                const townInput = document.getElementById("town_city");
+                preventDefault = false;
+                const town = townInput.value;
+                if (nameRegex.test(town)) {
+                    return false;
+                } else {
+                    document.getElementById("err-tc").textContent = "Please enter a valid name";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+
+            function validateDistrict() {
+                const disInput = document.getElementById("district");
+                preventDefault = false;
+                const dis = disInput.value;
+                if (nameRegex.test(dis)) {
+                    return false;
+                } else {
+                    document.getElementById("err-di").textContent = "Please enter a valid name";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+
+            function validateState() {
+                const stateInput = document.getElementById("state");
+                preventDefault = false;
+                const state = stateInput.value;
+                if (nameRegex.test(state)) {
+                    return false;
+                } else {
+                    document.getElementById("err-st").textContent = "Please enter a valid name";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+    
+            function validatePincode() {
+                const pinInput = document.getElementById("pin_code");
+                preventDefault = false;
+                const pincode = pinInput.value;
+                if (pincodeRegex.test(pincode)) {
+                    return false;
+                } else {
+                    document.getElementById("err-pin").textContent = "Please enter a valid PIN code(Must contain 6 digits)";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+    
+            function validateAddress() {
+                const addressInput = document.getElementById("street_address");
+                preventDefault = false;
+                const address = addressInput.value.trim();
+                if (addressRegex.test(address)) {
+                    return false;
+                } else {
+                    document.getElementById("err-add").textContent = "Please enter a valid address";
+                    preventDefault = true;  // Set the flag to true if validation fails
+                    return true;
+                }
+            }
+
+
+        document.getElementById("add-btn").addEventListener("click", function (event) {
+          
+    
+            // Call validation functions
+            validateFirstName();
+            validateLastName();
+            validatePhone();
+            validateTown();
+            validateAddress();
+            validateDistrict();
+            validateState();
+            validatePincode();
+    
+            // Prevent the default behavior only if any of the validations fail
+            if (preventDefault) {
+                event.preventDefault();
+            }
+        });
+    });
+    
+    </script>
+{% endblock %}
