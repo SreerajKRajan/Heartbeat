@@ -1,0 +1,116 @@
+{% extends 'admin_side/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Order detail</h2>
+            <p>Details for Order ID: {{order.order_number}}</p>
+        </div>
+    </div>
+    <div class="card">
+        
+        <div class="card-body">
+            <div class="row mb-50 mt-20 order-info-wrap">
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-person"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Customer</h6>
+                            <p class="mb-1">
+                                Name: {{user.username}} <br> <template class="__cf_email__" data-cfemail="e2838e879aa2879a838f928e87cc818d8f">[email&#160;protected]</template> <br> Email: {{user.email}}
+                            </p>
+                        </div>
+                    </article>
+                </div> <!-- col// -->
+               
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-place"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Deliver to</h6>
+        
+                            <p class="mb-1">
+                                City: {{shipping_address}}
+                            </p>
+
+                            <a href="{% url 'order_details' user.id %}">View profile</a>
+                        </div>
+                    </article>
+                </div> <!-- col// -->
+                
+            </div> <!-- row // -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th width="40%">Product</th>
+                                    <th width="20%">Unit Price</th>
+                                    <th width="20%">Quantity</th>
+                                    <th width="20%" class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in order_products %}
+                                <tr>
+                                    <td>
+                                        <a class="itemside" href="#">
+                                            <div class="left">
+                                                <img src="{{product.images.url}}" width="40" height="40" class="img-xs" alt="Item">
+                                            </div>
+                                            <div class="info"> {{product.product_variant}} </div>
+                                        </a>
+                                    </td>
+                                    <td>₹ {{product.product_price}} </td>
+                                    <td> {{product.quantity}} </td>
+                                    <td class="text-end"> ₹{{product.grand_totol}} </td>
+                                </tr>
+                                {%endfor%}
+                                <tr>
+                                    <td colspan="4">
+                                        <article class="float-end">
+                                            <dl class="dlist">
+                                                <dt>Subtotal:</dt>
+                                                <dd>₹ {{order.order_total}}</dd>
+                                            </dl>
+                                            <dl class="dlist">
+                                                <dt>Shipping cost:</dt>
+                                                <dd>0.00</dd>
+                                            </dl>
+                                            {% comment %} {% if order.coupon_discount != 0 %}
+                                            <dl class="dlist">
+                                                <dt>Coupon Discount:</dt>
+                                                <dd> <b class="h5" style="color:red">-₹ {{order.coupon_discount}}</b> </dd>
+                                            </dl>
+                                            <dl class="dlist">
+                                                <dt>Grand total:</dt>
+                                                <dd><b class="h5" style="color:green">+{{order.order_grandtotal}}</b> </dd>
+                                            </dl>
+                                            {% else %} {% endcomment %}
+                                            <dl class="dlist">
+                                                <dt>Grand total:</dt>
+                                                <dd><b class="h5" style="color:green">+{{order.order_total}}</b> </dd>
+                                            </dl>
+                                            {% comment %} {% endif %} {% endcomment %}
+            
+                                        </article>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div> <!-- table-responsive// -->
+                </div> <!-- col// -->
+                <div class="col-lg-1"></div>
+                
+            </div>
+        </div> <!-- card-body end// -->
+    </div> <!-- card end// -->
+</section> <!-- content-main end// -->
+{% endblock %}

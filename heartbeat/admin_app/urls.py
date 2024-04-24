@@ -34,6 +34,15 @@ urlpatterns = [
     path('unlist-category/<int:category_id>/',views.unlist_category,name='unlist_category'), # Making it unavailable
     path('list-category/<int:category_id>/',views.list_category,name='list_category'),       # Making it available
 
+    ################## Order Management #########################################
+
+    path('order_list/',views.order_list,name='order_list'),
+    path('order_details/<int:user_id>', views.order_details, name='order_details'),
+    path('change_order_status/<int:order_id>/<str:status>/<int:user_id>/', views.change_order_status, name='change_order_status'),
+    path('order_list_details/<int:id>/', views.order_list_details, name='order_list_details'),
+
+
+
 
 
 

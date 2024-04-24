@@ -1,0 +1,232 @@
+{% extends "user_side/base2.html" %}
+
+{% block content %}
+
+{% load static %}
+
+    <div class="card">
+        <div class="container mt-5 m-5">
+        <div class="card-header">
+        
+            <h5 class="mb-0">Order Details</h5>
+        </div>
+        <div class="card-body justify-content-center">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Order Number: #{{ order_dtails.order_number }}</h6>
+                    <p><strong>Order Date:</strong> {{ order_dtails.created_at }}</p>
+                    <p><strong>Payment Method:</strong> {{ order_dtails.payment.payment_method.method_name }}</p>
+                    <p><strong>Shipping Address:</strong> {{ order_dtails.shipping_address }}</p>
+                </div>
+                <div class="col-md-6">
+                    {% if coupon_discount %}
+                    <p><strong>Actual Total :</strong> ₹{{ product_total }}</p>
+                    <p><strong>Coupon Discount :</strong> ₹{{ coupon_discount }}</p>
+                    <p><strong>Grand Total :</strong> ₹{{ grand_total }}</p>
+                    {% else %}
+                    {% comment %} <h6>Total: ₹{{ grand_total }}</h6> {% endcomment %}
+                    <p><strong>Grand Total :</strong> ₹{{ grand_total }}</p>
+                    {% endif %}
+                    {% comment %} <p><strong>Discount:</strong> ₹{{ ordere_dtails.discount }}</p> {% endcomment %}
+                </div>
+            </div>
+            <hr>
+            <h5>Ordered Products</h5>
+            <div class="table-responsive">
+                <style>
+                    .product-details {
+                        font-size: 16px; /* Adjust the font size as needed */
+                    }
+                </style>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Order Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order_products %}
+                        <tr>
+                            <td>
+                                {% if item.images %}
+                                    <img src="{{ item.images.url }}" alt="{{ item.product_variant }}" style="max-width: 100px;">
+                                {% else %}
+                                    No Image
+                                {% endif %}
+                            </td>
+                            
+                            <td class="product-details">{{ item.product_variant }}</td>
+                            <td class="product-details">{{ item.quantity }}</td>
+                            <td class="product-details">₹{{ item.grand_total }}</td>
+                            {% if order_details.payment.payment_status != "FAILED" %}
+                            <td class="product-details">{{ item.order_status }}</td>
+                            {% else %}
+                            <td><h7>Not Confirmed</h7></td>
+                            {% endif %}
+                
+                            <td>
+                                {% if order_details.payment.payment_status != "FAILED" %}
+                
+                                {% if item.order_status == "New" or item.order_status == "Accepted" %}
+                                    <a href="{% url 'order:cancel_product' item.id %}" class="badge rounded-pill alert-danger p-2 cancel-product">Cancel</a>
+                                {% elif item.order_status == "Delivered"%}
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{% url 'order:return_product' item.id %}" class="badge rounded-pill alert-danger p-2 return-product">Return</a>
+                                </div>
+                                {% elif item.order_status == "Cancelled User" %}
+                                    <button class="badge rounded-pill alert-danger p-2 cancel-product" disabled>Cancelled</button>
+                                {% elif item.order_status == "Returned User" %}
+                                    <button class="badge rounded-pill alert-danger p-2 cancel-product" disabled>Returned</button>
+                                {% endif %}
+                
+                                {% else %}
+                                <button class="badge rounded-pill alert-danger p-2 cancel-product" disabled>Failed</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>   
+                </table>
+                
+            </div>
+            <div class="d-flex justify-content-center">
+            {% if order_dtails.payment.payment_status == "FAILED" %}
+
+            <p style = "color:red">Click here to Repay</p>
+            {% endif %}
+        </div>
+        {% if order_dtails.payment.payment_status == "FAILED" %}
+
+        <form method="post" id="repayorderfaild">
+            {% csrf_token %}
+            <div class="d-flex justify-content-center">
+        <button class="btn btn-primary" id = "repay">Confirm Re-pay</button>
+            </div>
+        
+        </div>
+        </form>
+        {% endif %}
+
+        {% if product_ispaid == True %}
+        <a href="">
+            <button class="btn btn-primary">Get Invoice</button>
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+
+
+
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cancelButtons = document.querySelectorAll('.cancel-product');
+        cancelButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const url = this.getAttribute('href');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'You want to cancel this product?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, cancel it!',
+                    cancelButtonText: 'No, keep it'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = url;
+                    }
+                });
+            });
+        });
+    });
+
+//return product sweet alert
+    document.addEventListener('DOMContentLoaded', function() {
+        const cancelButtons = document.querySelectorAll('.return-product');
+        cancelButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const url = this.getAttribute('href');
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'You want to return this product?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, cancel it!',
+                    cancelButtonText: 'No, keep it'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = url;
+                    }
+                });
+            });
+        });
+    });
+
+
+
+
+
+
+    document.getElementById("repay").addEventListener("click", function(event) {
+        event.preventDefault();
+    
+        fetch("", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        
+        .then(data => {
+            if (data.success) {
+                console.log(data)
+                var options = {
+                    key: "rzp_test_dSu8p6gC5RjeXR",
+                    amount: data.amount,
+                    currency: "INR",
+                    name: "Time Gallery",
+                    description: "Add Funds to Wallet",
+                    order_id: data.order_id,
+                    callback_url: "http://127.0.0.1:8000/repayment_handler/?id="+data.product_order_id,
+                    handler: function(response) {
+                        // Handle successful payment
+                        alert("Payment successful!");
+                        window.location.reload();
+                    },
+                    "prefill": {
+                        "name": "{{ request.user.get_username }}",
+                        "email": "{{ request.user.email }}",
+                        // You can prefill other fields if needed
+                    },
+                    "theme": {
+                        "color": "#3399cc"
+                    }
+                };
+                var rzp1 = new Razorpay(options);
+                rzp1.open();
+            } else {
+                alert("Failed to create Razorpay order. Please try again.");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("An error occurred while processing payment.");
+        });
+    });
+
+</script>
+
+{% endblock %}

@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.decorators.cache import never_cache,cache_control
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.utils import timezone
 import datetime
 import random
@@ -12,6 +13,7 @@ from django.shortcuts import get_object_or_404
 # from django.db.models import Q
 from django.core.mail import send_mail
 from product_management.models import *
+from order.models import *
 from django.http import JsonResponse
 import json
 
@@ -89,7 +91,7 @@ def user_profile(request):
         }
 
         return render(request, 'user_side/user_profile.html', context)
-    return redirect("user_app:home")
+    return redirect("user_app:login_page")
 
 @login_required
 @never_cache 
@@ -125,9 +127,50 @@ def address(request):
             #    'order_dtails' : order_dtails
             }
 
-    
         
     return render(request,'user_side/address.html',context)
+
+
+@login_required
+@never_cache
+def profile_orders(request):
+    current_user = request.user
+    orders = Order.objects.filter(user=current_user).order_by("-created_at")
+    
+    # Initialize an empty list to store order products
+    order_products = []
+
+    for order in orders:
+        # Get the order products for each order
+        products_for_order = OrderProduct.objects.filter(order=order)
+        order_products.append(products_for_order)
+
+    for order in orders:
+        if order.payment:
+            print(order.payment.payment_method.method_name)
+        else:
+            print("No payment found for order #", order.order_number)
+    
+    
+    for order, order_product_list in zip(orders, order_products):
+        if order.payment.payment_method == "CASH ON DELIVERY":
+            all_delivered = all(product.order_status == "Delivered" for product in order_product_list)
+            if all_delivered:
+                order.payment.payment_status = "SUCCESS"
+            else:
+                order.payment.payment_status = "PENDING"
+            order.save()
+
+    # Paginate the orders
+    paginator = Paginator(orders, 6)
+    page = request.GET.get('page')
+    paged_products = paginator.get_page(page)    
+
+    context = {
+        'orders': paged_products,
+        'order_products': order_products
+    }
+    return render(request, 'user_side/profile_orders.html', context)
 
 
 def add_address(request):

@@ -8,8 +8,13 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 import json
 from django.db.models import Q
+from decimal import Decimal
 from product_management.models import Category
 
+from order.models import *
+from django.core.paginator import EmptyPage,PageNotAnInteger, Paginator
+from django.urls import reverse
+from user_app.models import Address
 
 # Create your views here.
 
@@ -178,6 +183,131 @@ def unlist_category(request, category_id):
     return redirect('admin_login')
 
         
+############## Order Management ##########################
+
+
+def order_list(request):
+    if request.user.is_authenticated and request.user.is_superadmin:
+
+        order_list = OrderProduct.objects.all().order_by("-created_at")
+        order = Order.objects.all().order_by("-created_at")
+
+        paginator = Paginator(order, 6)
+        page = request.GET.get('page')
+        paged_orders = paginator.get_page(page)
+
+
+        context = {
+            "paged_orders":paged_orders,
+            'order':order,
+        }
+        return render(request,'admin_side/order_list.html', context)
+    return redirect('admin_login')
+
+
+def order_details(request, user_id):
+    if request.user.is_authenticated and request.user.is_superadmin:
+        user = Account.objects.get(id=user_id)
+
+        orders = OrderProduct.objects.filter(user__id=user.id).order_by("-created_at")
+        order_products_calc = OrderProduct.objects.filter(user__id=user.id, order_status__in=["New", "Accepted", "Delivered"], order__payment__payment_status__in=["SUCCESS", "PENDING"]).order_by("-created_at")
+        order = Order.objects.filter(user_id=user.id)
+        total_user_orders = Order.objects.filter(user=user_id)
+
+        try:
+            user_address = Address.objects.get(is_default=True, account=user)
+        except Address.DoesNotExist:
+            user_address = None
+        
+        total_product_price = Decimal(0)
+        grant_total = Decimal(0)
+
+        for i in order_products_calc:
+            if i.grand_total is not None:
+                grant_total += i.grand_total
+            total_product_price += i.product_price
+
+        context = {
+            "orders": orders,
+            "order": order,
+            "user_address": user_address,
+            "user": user,
+            "grant_total": grant_total,
+            "total_product_price": total_product_price
+        }
+
+        return render(request, 'admin_side/order_details.html', context)
+    return redirect('admin_login')
+
+
+def change_order_status(request, order_id, status, user_id):
+    if request.user.is_authenticated and request.user.is_superadmin:
+
+        order_product = get_object_or_404(OrderProduct, id=order_id)
+
+        order_product.order_status = status
+        order_product.save()
+        if status == "Cancelled Admin":
+            order = Order.objects.get(order_number = order_product.order)
+
+        elif status == "Delivered":
+            order = Order.objects.get(order_number = order_product.order)
+            if order.payment.payment_method.method_name == "CASH ON DELIVERY":
+                order_product.is_paid = True
+                order_product.save()
+                order.payment.amount_paid = order_product.grand_total
+                order.save()
+
+
+        # Redirect to some page after changing status
+        return redirect(reverse('order_details', kwargs={'user_id': user_id}))
+    return redirect('admin_login')
+
+
+def order_list_details(request,id):
+    if request.user.is_authenticated and request.user.is_superadmin:
+        order = Order.objects.get(id = id)
+        order_products = OrderProduct.objects.filter(order = order)
+        user_id = order.user.id
+        user = Account.objects.get(id = user_id)
+
+        try:
+            user_address = Address.objects.get(is_default = True, account = user)
+        except:
+            user_address = None
+        total_product_price = 0
+        grant_total = 0
+        discount = 0
+        for i in order_products:
+            total_product_price += i.grand_total
+        if total_product_price > order.order_total:
+            order_total =  order.order_total
+            coupon_discount = total_product_price-order_total
+        shipping_address = order.shipping_address
+        try:
+            context={
+                'order':order,
+                'order_products':order_products,
+                'user':user,
+                'shipping_address':shipping_address,
+                'coupon_discount':coupon_discount,
+                'order_total':order_total,
+                'total_product_price':total_product_price
+            }
+        except:
+            context={
+                'order':order,
+                'order_products':order_products,
+                'user':user,
+                'shipping_address':shipping_address,
+                'total_product_price':total_product_price
+            }
+
+
+        return render(request,'admin_side/order_list_details.html',context)
+    return redirect('admin_login')
+
+
 
 
 

@@ -144,5 +144,5 @@ def checkout(request, total=0, quantity=0, cart_items=None):
 
         else:
             
-            messages.error(request,f"Insufficient quantity. Reduce quantity to {cart_item.variant.stock} to proceed!!")
+            messages.error(request,f"Insufficient quantity. Reduce quantity to {cart_item.product.stock} to proceed!!")
             return redirect('cart:cart')

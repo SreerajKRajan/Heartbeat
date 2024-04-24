@@ -1,0 +1,200 @@
+{% extends 'admin_side/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Order detail</h2>
+            {% comment %} <p>Details for Order ID: {{ order.order_number }}</p> {% endcomment %}
+        </div>
+    </div>
+    <div class="card">
+        {% comment %} <header class="card-header">
+            <div class="row align-items-center">
+                <div class="col-lg-6 col-md-6 mb-lg-0 mb-15">
+                    <span>
+                        <i class="material-icons md-calendar_today"></i> <b>Wed, Aug 13, 2020, 4:34PM</b>
+                    </span> <br>
+                    <small class="text-muted">Order ID: 3453012</small>
+                </div>
+                <div class="col-lg-6 col-md-6 ms-auto text-md-end">
+                    <select class="form-select d-inline-block mb-lg-0 mb-15 mw-200">
+                        <option>Change status</option>
+                        <option>Awaiting payment</option>
+                        <option>Confirmed</option>
+                        <option>Shipped</option>
+                        <option>Delivered</option>
+                    </select>
+                    <a class="btn btn-primary" href="#">Save</a>
+                    <a class="btn btn-secondary print ms-2" href="#"><i class="icon material-icons md-print"></i></a>
+                </div>
+            </div>
+        </header> <!-- card-header end// --> {% endcomment %}
+        <div class="card-body">
+            <div class="row mb-50 mt-20 order-info-wrap">
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-person"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Customer</h6>
+                            <p class="mb-1">
+                                Name: {{user.username}} <br> <template class="__cf_email__" data-cfemail="e2838e879aa2879a838f928e87cc818d8f">[email&#160;protected]</template> <br> Email: {{user.email}}
+                            </p>
+                            {% comment %} <a href="#">View profile</a> {% endcomment %}
+                        </div>
+                    </article>
+                </div> <!-- col// -->
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-local_shipping"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Order info</h6>
+                            <p class="mb-1">
+                                Shipping: Fargo express <br> Pay method: card <br> Status: new
+                            </p>
+                            <a href="#">Download info</a>
+                        </div>
+                    </article>
+                </div> <!-- col// -->
+                <div class="col-md-4">
+                    <article class="icontext align-items-start">
+                        <span class="icon icon-sm rounded-circle bg-primary-light">
+                            <i class="text-primary material-icons md-place"></i>
+                        </span>
+                        <div class="text">
+                            <h6 class="mb-1">Deliver to</h6>
+        
+                            <p class="mb-1">
+                                City: {{user_address.street_address}} <br>{{ user_address.zip_code }}<br> {{ user_address.phone_number }}
+                            </p>
+
+                            <a href="#">View profile</a>
+                        </div>
+                    </article>
+                </div> <!-- col// -->
+            </div> <!-- row // -->
+            <div class="row">
+                <div class="col-lg-9">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th width="40%">Product</th>
+                                    <th width="20%">Status</th>
+                                    <th width="20%">Unit Price</th>
+                                    <th width="20%">Quantity</th>
+                                    <th width="20%">Total</th>
+                                    <th width="30%" class="text-end">Change Status</th>
+                                </tr>
+                            </thead>
+                            {% for order in orders %}
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <a class="itemside" href="#">
+                                            <div class="left">
+                                                <img src="{{ order.images.url }}" style="max-width: 70px;">
+                                            </div>
+                                            <div class="info"> {{ order.product_variant }} </div>
+                                        </a>
+                                    </td>
+                                    <td class="badge rounded-pill alert-success text-success"> {{ order.order_status }} </td>
+                                    <td> {{ order.product_price }} </td>
+                                    <td> {{ order.quantity }} </td>
+                                    <td> {{ order.grand_totol }} </td>
+                                    {% if order.order_status != "Cancelled User" and order.order_status != "Returned User" and order.order_status != "Cancelled Admin" and order.order_status != "Delivered" and order.order.payment.payment_status != "FAILED" %}
+                            
+                                    <td>
+                                        <select onchange="handleChange(this)">
+                                            <option value="" disabled selected>Change status</option>
+                                            <option value="{% url 'change_order_status' order.id 'Accepted' user.id %}">Accepted</option>
+                                            <option value="{% url 'change_order_status' order.id 'Delivered' user.id %}">Delivered</option>
+                                            <option value="{% url 'change_order_status' order.id 'Cancelled Admin' user.id %}">Cancelled Admin</option>
+                                        </select>
+                                    </td>
+                                    {% elif order.order_status == "Cancelled User" %}
+                                    <td style="color:red">Cancelled by User</td>
+
+                                    {% elif order.order_status == "Returned User" %}
+
+                                    <td style="color:red">Returned by User</td>
+
+                                    {% elif order.order_status == "Cancelled Admin" %}
+
+                                    <td style="color:red">Cancelled by Admin</td>
+                                    {% elif order.order_status == "Delivered" %}
+
+                                    <td style="color:Green">Order Deliverd</td>
+                                    {% elif order.order.payment.payment_status == "FAILED" %}
+
+                                    <td style="color:red">FAILED ORDER</td>
+                                    {% endif %}
+                                </tr>
+
+                                {% endfor %}
+
+                                <tr>
+                                    <td colspan="4">
+                                        <article class="float-end">
+                                            <dl class="dlist">
+                                                <dt>Total Price:</dt>
+                                                <dd>{{ total_product_price }}</dd>
+                                            </dl>
+                                            <dl class="dlist">
+                                                <dt>Discount:</dt>
+                                                <dd>0 INR</dd>
+                                            </dl>
+                                            <dl class="dlist">
+                                                <dt>Grand total:</dt>
+                                                <dd> <b class="h5">{{ total_product_price }}</b> </dd>
+                                            </dl>
+
+                                        </article>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div> <!-- table-responsive// -->
+                </div> <!-- col// -->
+                <div class="col-lg-1"></div>
+                <div class="col-lg-2">
+                    <div class="box shadow-sm bg-light">
+                        <h6 class="mb-15">Payment info</h6>
+                        <p>
+                            Cash On Delivery
+
+                        </p>
+                    </div>
+                    <div class="h-25 pt-4">
+                        <div class="mb-3">
+                            <label>Notes</label>
+                            <textarea class="form-control" name="notes" id="notes" placeholder="Type some note"></textarea>
+                        </div>
+                        <button class="btn btn-primary">Save note</button>
+                    </div>
+                </div> <!-- col// -->
+               
+            </div>
+        
+        </div> <!-- card-body end// -->
+
+    </div> <!-- card end// -->
+</section> <!-- content-main end// -->
+
+<script>
+    function handleChange(select) {
+        if (select.value !== '') {
+            window.location.href = select.value;
+        }
+    }
+</script>
+
+
+
+{% endblock %}

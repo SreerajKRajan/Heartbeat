@@ -8,7 +8,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-25">
-                            <h4>Billing Details</h4>
+                            <h4>Address</h4>
                         </div>
                         <div class="card">
                             <div class="header text-center">
@@ -37,16 +37,6 @@
                                                 </div>
                                             </div>
                                         </label>
-                                        <div class="d-flex flex-column align-items-center justify-content-center">
-                                            <div class="align-content-center fs-7 mb-2">
-                                                <a href="{% url 'user_app:delete_address' add.id %}" style="font-size: 15px; color: black;">
-                                                    <i class="bi bi-trash"></i>
-                                                 </a>
-                                            </div>
-                                            <a class="fs-7" style="font-size: 15px; color: black;" href="{% url 'user_app:edit_address' id=add.id %}">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </a>
-                                        </div>
                                     </li>
                                     {% endfor %}
                                     {% else %}
@@ -95,7 +85,7 @@
 
                                 
                                 <div id="card-button-container" >
-                                    <button id="cod-button" type="submit" name="submit" class="btn btn-fill-out btn-dark btn-block mt-30">Place Order</button>
+                                    <a href="{% url 'order:order_place_cod' %}" id="cod-button" type="submit" name="submit" class="btn btn-fill-out btn-success btn-block mt-30">Place Order</a>
                                 </div>
                                 <div id="card-button-container" >
                                     <button id="razorpay-button" type="submit" class="btn btn-fill-out btn-block mt-30" style="display: none;">Pay with Razorpay</button>
@@ -243,6 +233,7 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
 
 </script>
 
