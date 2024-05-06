@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from cart.models import *
 from .models import *
 from user_app.models import *
+from wallet.models import *
 from django.contrib import messages
 from decimal import Decimal
 from django.contrib.auth.decorators import login_required
@@ -113,7 +114,7 @@ def profile_order_details(request, id):
         
 
         context = {
-                'order_dtails':order,
+                'order_details':order,
                 'order_products':order_products1,
                 'product_total':order.order_total,
                 'grand_total':order.grand_total,
@@ -121,7 +122,7 @@ def profile_order_details(request, id):
             }
     else:
         context = {
-            'order_dtails':order,
+            'order_details':order,
             'order_products':order_products,
             'order_products':order_products1,
             'grand_total':order.grand_total,
@@ -152,7 +153,14 @@ def cancel_product(request, item_id):
         ordered_product.save()
 
         payment_method = PaymentMethod.objects.get(method_name=order.payment.payment_method.method_name)
-        
+
+        if payment_method.method_name != "CASH ON DELIVERY":
+            wallet = Wallet.objects.get(user=request.user)
+            wallet.balance+= ordered_product.grand_total
+            wallet.save()
+
+            WalletTransaction.objects.create(wallet = wallet,transaction_type = "CREDIT", transaction_detail = "Order Cancelled", amount = ordered_product.grand_total)
+
         return redirect("order:profile_order_details", order.id)
     
     except OrderProduct.DoesNotExist:

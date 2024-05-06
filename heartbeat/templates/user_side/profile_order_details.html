@@ -13,10 +13,10 @@
         <div class="card-body justify-content-center">
             <div class="row">
                 <div class="col-md-6">
-                    <h6>Order Number: #{{ order_dtails.order_number }}</h6>
-                    <p><strong>Order Date:</strong> {{ order_dtails.created_at }}</p>
-                    <p><strong>Payment Method:</strong> {{ order_dtails.payment.payment_method.method_name }}</p>
-                    <p><strong>Shipping Address:</strong> {{ order_dtails.shipping_address }}</p>
+                    <h6>Order Number: #{{ order_details.order_number }}</h6>
+                    <p><strong>Order Date:</strong> {{ order_details.created_at }}</p>
+                    <p><strong>Payment Method:</strong> {{ order_details.payment.payment_method.method_name }}</p>
+                    <p><strong>Shipping Address:</strong> {{ order_details.shipping_address }}</p>
                 </div>
                 <div class="col-md-6">
                     {% if coupon_discount %}
@@ -27,7 +27,7 @@
                     {% comment %} <h6>Total: ₹{{ grand_total }}</h6> {% endcomment %}
                     <p><strong>Grand Total :</strong> ₹{{ grand_total }}</p>
                     {% endif %}
-                    {% comment %} <p><strong>Discount:</strong> ₹{{ ordere_dtails.discount }}</p> {% endcomment %}
+                    {% comment %} <p><strong>Discount:</strong> ₹{{ ordere_details.discount }}</p> {% endcomment %}
                 </div>
             </div>
             <hr>
@@ -71,19 +71,20 @@
                 
                             <td>
                                 {% if order_details.payment.payment_status != "FAILED" %}
-                
+
                                 {% if item.order_status == "New" or item.order_status == "Accepted" %}
                                     <a href="{% url 'order:cancel_product' item.id %}" class="badge rounded-pill alert-danger p-2 cancel-product">Cancel</a>
                                 {% elif item.order_status == "Delivered"%}
                                 <div class="d-flex justify-content-between align-items-center">
                                     <a href="{% url 'order:return_product' item.id %}" class="badge rounded-pill alert-danger p-2 return-product">Return</a>
+                             
                                 </div>
                                 {% elif item.order_status == "Cancelled User" %}
                                     <button class="badge rounded-pill alert-danger p-2 cancel-product" disabled>Cancelled</button>
                                 {% elif item.order_status == "Returned User" %}
                                     <button class="badge rounded-pill alert-danger p-2 cancel-product" disabled>Returned</button>
                                 {% endif %}
-                
+
                                 {% else %}
                                 <button class="badge rounded-pill alert-danger p-2 cancel-product" disabled>Failed</button>
                                 {% endif %}
@@ -94,13 +95,13 @@
                 </table>
                 
             </div>
-            <div class="d-flex justify-content-center">
-            {% if order_dtails.payment.payment_status == "FAILED" %}
+            {% comment %} <div class="d-flex justify-content-center">
+            {% if order_details.payment.payment_status == "FAILED" %}
 
             <p style = "color:red">Click here to Repay</p>
             {% endif %}
         </div>
-        {% if order_dtails.payment.payment_status == "FAILED" %}
+        {% if order_details.payment.payment_status == "FAILED" %}
 
         <form method="post" id="repayorderfaild">
             {% csrf_token %}
@@ -116,7 +117,7 @@
         <a href="">
             <button class="btn btn-primary">Get Invoice</button>
         </a>
-        {% endif %}
+        {% endif %} {% endcomment %}
     </div>
 </div>
 

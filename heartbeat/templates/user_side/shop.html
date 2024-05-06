@@ -43,13 +43,15 @@
 					</div>	
 				</div>			 {% endcomment %}
 			</div>
-			<p>
-				{% if messages %}
-				{% for message in messages %}
-				<span class="error" style="position: relative;top: 100%;left: 2px;font-size:14px;font-weight: 400;color: red;width: 190px;transition: opacity 0.5s;">{{message}}</span>
-				{% endfor %}
-				{% endif %}
-			</p>	
+            {% if messages %}
+            <div class="messages-container text-center" style="background-color: #dd838a; padding: 10px; color: white;">
+                <div class="message-box">
+                    {% for message in messages %}
+                        <span class="error">{{ message }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}	
 			<div class="row isotope-grid">
 				{% for i in product_variant  %}
 				<div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">

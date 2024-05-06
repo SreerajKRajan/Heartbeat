@@ -181,8 +181,9 @@ def add_wishlist(request,id):
 
     if not wishlist_items:
        WishlistItem.objects.create(wishlist=user_wishlist,product = product_variant)
+       messages.success(request,'Item is added to your wishlist')
     else:
-        messages.error(request,'item is already in your wishlist')
+        messages.error(request,'Item is already in your wishlist')
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 

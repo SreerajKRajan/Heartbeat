@@ -58,16 +58,28 @@
 									<!-- Inside the loop -->
 									<td class="text-center" data-title="Stock">
 										<div class="detail-qty border radius m-auto">
+											{% if cart_item.quantity != 1 %}
 											<a href="{% url 'cart:remove_cart' cart_item.product.id %}">
-											<button type="button" class="btn btn-light">-</button>
-											</a>	
-											<span class="qty-val">{{ cart_item.quantity }}</span>
-											<a href="{% url 'cart:add_cart' cart_item.product.id %}">
-											<button type="button" class="btn btn-light">+</button>
+												<button type="button" class="btn btn-light" disabled>-</button>
 											</a>
-
+											{% else %}
+											<button type="button" class="btn btn-light">-</button>
+											{% endif %}
+											<span class="qty-val">{{ cart_item.quantity }}</span>
+											{% if cart_item.quantity < 8 %}
+												<a href="{% url 'cart:add_cart' cart_item.product.id %}">
+													<button type="button" class="btn btn-light">+</button>
+												</a>
+											{% else %}
+												<button type="button" class="btn btn-light" disabled>+</button>
+											{% endif %}
 										</div>
+										{% if cart_item.quantity >= 8 %}
+											<p style="color:red;">Stock limit exceeded</p>
+										{% endif %}
 									</td>
+									
+									
 
 									<td class="column-5">{{ cart_item.sub_total }}</td>
 									<td class="action" data-title="Remove"><a href="{% url 'cart:remove_cart_item' cart_item.product.id %}" class="btn btn-dark mr-5">Remove<i class="fi-rs-trash"></i></a></td>

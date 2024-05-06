@@ -52,6 +52,15 @@
 				</div>
 					
 				<div class="col-md-6 col-lg-5 p-b-30">
+					{% if messages %}
+					<div class="messages-container text-center" style="background-color: #dd838a; padding: 10px; color: white;">
+						<div class="message-box">
+							{% for message in messages %}
+								<span class="error">{{ message }}</span>
+							{% endfor %}
+						</div>
+					</div>
+					{% endif %}	
 					<div class="p-r-50 p-t-5 p-lr-0-lg">
 						<h4 class="mtext-105 cl2 js-name-detail p-b-14">
 							{{ product.product.product_name }}
@@ -109,7 +118,7 @@
 						<!--  -->
 						<div class="flex-w flex-m p-l-100 p-t-40 respon7">
 							<div class="flex-m bor9 p-r-10 m-r-11">
-								<a href="#" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100" data-tooltip="Add to Wishlist">
+								<a href="{% url 'cart:add_wishlist' id=product.id %}" class="fs-14 cl3 hov-cl1 trans-04 lh-10 p-lr-5 p-tb-2 js-addwish-detail tooltip100" data-tooltip="Add to Wishlist">
 									<i class="zmdi zmdi-favorite"></i>
 								</a>
 							</div>

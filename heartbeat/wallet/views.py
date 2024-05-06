@@ -17,7 +17,20 @@ def wallet(request):
     user = request.user
 
     if request.method == 'POST':
-        amount = int(request.POST.get('amount', 0)) * 100  # Amount in paisa
+        a = request.POST.get('amount') 
+        if a is not None:
+            try:
+                amount = int(a) * 100
+                print("Amount:", amount)
+            except ValueError:
+                # Handle the case where 'amount' is not a valid integer
+                print("Invalid amount:", a)
+                # You can return an error response or redirect the user to an error page here
+        else:
+            # Handle the case where 'amount' is not provided in the POST request
+            print("Amount is not provided in the POST request")
+            # You can return an error response or redirect the user to an error page here
+
         client = razorpay.Client(auth=(settings.RAZOR_PAY_KEY_ID, settings.KEY_SECRET))
         
         payment_data = {
@@ -29,10 +42,11 @@ def wallet(request):
 
         try:
             payment = client.order.create(data=payment_data)
+            print("p",payment)
 
             return JsonResponse({'success': True,'order_id': payment['id'],'amount': payment['amount'],})
         except Exception as e:
-            print(str(e))
+            print("dd",str(e))
             return JsonResponse({'success': False, 'error': str(e)})
 
     try:
@@ -58,17 +72,19 @@ def wallet(request):
         return JsonResponse({'success': False, 'error': str(e)})
     
 
-
 @csrf_exempt
 def wallet_handler(request):
-
+    print('paymrtn')
     if request.method == "POST":
         try:
-            payment_id        = request.POST.get('razorpay_payment_id', '')
+            payment_id = request.POST.get('razorpay_payment_id', '')
             razorpay_order_id = request.POST.get('razorpay_order_id', '')
-            signature         = request.POST.get('razorpay_signature', '')
-            amount = request.GET.get('amount', '') 
-
+            signature = request.POST.get('razorpay_signature', '')
+            
+            print("Payment ID:", payment_id)
+            print("Order ID:", razorpay_order_id)
+            print("Signature:", signature)
+            
             params_dict = {
                 'razorpay_order_id': razorpay_order_id,
                 'razorpay_payment_id': payment_id,
@@ -77,25 +93,31 @@ def wallet_handler(request):
             client = razorpay.Client(auth=(settings.RAZOR_PAY_KEY_ID, settings.KEY_SECRET))
             result = client.utility.verify_payment_signature(params_dict)
             
-            if not result :
+            if not result:
                 return redirect('wallet:wallet_faild')
             else:
-                try:
-
-                    return redirect('wallet:wallet_success',payment_id,amount)
-                except Exception as e:
-                    print("exception:   ",str(e))
+                # Construct the URL for wallet_success properly
+                amount = request.GET.get('amount', '') 
+                return redirect('wallet:wallet_success', payment_id=payment_id, amount=amount)
             
         except Exception as e:
             print('Exception:', str(e))
+            print('======')
+            return redirect('wallet:wallet_faild')
+    
+    elif request.method == "GET":
+        # Handle the GET request properly
+        amount = request.GET.get('amount', '')
+        if amount:
+            return redirect('wallet:wallet')
+        else:
             return redirect('wallet:wallet_faild')
 
-    redirect("wallet:wallet")
 
 
 
-# def wallet_faild(request):
-#     return render(request,'userside/wallet-fail.html')
+def wallet_faild(request):
+    return render(request,'user_side/wallet_fail.html')
 
 
 def wallet_success(request,payment_id,amount):
@@ -114,4 +136,4 @@ def wallet_success(request,payment_id,amount):
 
     
     messages.success(request,"Amount added successfully")
-    return redirect("wallet_app:wallet")
+    return redirect("wallet:wallet")
