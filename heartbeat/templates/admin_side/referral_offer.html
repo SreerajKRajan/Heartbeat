@@ -1,0 +1,113 @@
+{% extends 'admin_side/base.html' %}
+{% load static %}
+
+{% block content %}
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Referral Offers</h2>
+                <p>Create, view, and manage referral offers</p>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        {% comment %} {% if message.tags == "offer_success" %} {% endcomment %}
+                            <span class="alert alert-success" role="alert">
+                                {{ message }}
+                            </span>
+                        {% comment %} {% endif %} {% endcomment %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div>
+                <input type="text" placeholder="Search Referral Offers" class="form-control bg-white">
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <form action="{% url 'offer_management:referral_offer' %}" method="post">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label for="expire_date" class="form-label">Expire Date</label>
+                                <input type="date" class="form-control" id="expire_date" name="expire_date" />
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="amount" class="form-label">Amount</label>
+                                <input type="text" placeholder="Enter amount" class="form-control" id="amount" name="amount" />
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="limit" class="form-label">Limit</label>
+                                <input type="number" placeholder="Enter limit" class="form-control" id="limit" name="limit" />
+                            </div>
+
+                            <div class="mb-4 form-check">
+                                <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked>
+                                <label class="form-check-label" for="is_active">Active</label>
+                            </div>
+
+                            <div class="d-grid">
+                                <button class="btn btn-primary" type="submit">Create Referral Offer</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#ID</th>
+                                        <th>Expire Date</th>
+                                        <th>Amount</th>
+                                        <th>Limit</th>
+                                        <th>Active</th>
+                                        <th class="text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for offer in referral_offers %}
+                                        <tr>
+                                            <td>{{ offer.id }}</td>
+                                            <td>{{ offer.expire_date }}</td>
+                                            <td>{{ offer.amount }}</td>
+                                            <td>{{ offer.limit }}</td>
+                                            <td>
+                                                {% if offer.is_active %}
+                                                    <span class="badge rounded-pill bg-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge rounded-pill bg-secondary">Inactive</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="dropdown">
+                                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                                    <div class="dropdown-menu">
+                                                        {% if offer.is_active %}
+                                                            
+                                                        {% comment %} <a class="dropdown-item" href="">Deactivate</a> {% endcomment %}
+                                                        <a class="dropdown-item" href="{% url 'offer_management:change_offer_status' offer.id %}">Deactivate</a>
+                                                        {% else %}
+                                                           
+                                                        {% comment %} <a class="dropdown-item" href="">Activate</a> {% endcomment %}
+                                                        <a class="dropdown-item" href="{% url 'offer_management:change_offer_status' offer.id %}">Activate</a>
+                                                        {% endif %}
+                                                        {% comment %} <a class="dropdown-item text-danger" href="">Delete</a> {% endcomment %}
+
+                                                        <a class="dropdown-item text-danger" href="{% url 'offer_management:delete_referral_offer' offer.id %}">Delete</a>
+                                                    </div>
+                                                </div> <!-- dropdown //end -->
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

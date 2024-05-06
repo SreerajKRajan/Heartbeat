@@ -48,7 +48,7 @@ def add_cart(request, product_id):
         )
         cart_item.save()
         
-    return redirect('cart:cart')
+    return redirect(request.META.get('HTTP_REFERER', '/'))
     
 
 
@@ -146,3 +146,52 @@ def checkout(request, total=0, quantity=0, cart_items=None):
             
             messages.error(request,f"Insufficient quantity. Reduce quantity to {cart_item.product.stock} to proceed!!")
             return redirect('cart:cart')
+        
+
+
+def wishlist(request):
+    user_wishlist = None
+    if request.user.is_authenticated:
+        user_id = request.user.id
+        user = Account.objects.get(id = user_id)
+        try:
+            user_wishlist = Wishlist.objects.get(user=user)
+        except:
+            user_wishlist = Wishlist.objects.create(user=user)
+
+    wishlist_items = WishlistItem.objects.filter(wishlist=user_wishlist)
+
+    context = {
+       'wishlist_items':wishlist_items ,
+    }
+    return render(request,'user_side/wishlist.html',context) 
+
+def add_wishlist(request,id):
+    print("gggggg")
+    user_id = request.user.id
+    user = Account.objects.get(id = user_id)
+    product_variant = Product_Variant.objects.get(id=id)
+
+    try:
+        user_wishlist = Wishlist.objects.get(user=user)
+    except:
+        user_wishlist = Wishlist.objects.create(user=user)
+
+    wishlist_items = WishlistItem.objects.filter(wishlist=user_wishlist,product = product_variant)
+
+    if not wishlist_items:
+       WishlistItem.objects.create(wishlist=user_wishlist,product = product_variant)
+    else:
+        messages.error(request,'item is already in your wishlist')
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+
+def remove_wishlist(request,id):
+    user_id = request.user.id
+    user = Account.objects.get(id = user_id)
+    product_variant = Product_Variant.objects.get(id=id)
+    user_wishlist = Wishlist.objects.get(user=user)
+    wishlist_items = WishlistItem.objects.get(wishlist=user_wishlist,product = product_variant)
+    wishlist_items.delete()
+    return redirect('cart:wishlist')

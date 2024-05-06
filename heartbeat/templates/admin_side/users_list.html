@@ -14,15 +14,14 @@
     <div class="card mb-4">
         <header class="card-header">
             <div class="row align-items-center">
-
+                <form class="searchform" method="GET" action="{% url 'all_users' %}">
                 <div class="col-md-3 col-12 me-auto mb-md-0 mb-3 ">
-                    <form class="searchform" method="GET" action="{% url 'all_users' %}">
                         <div class="input-group" style="width: 350px;">
                             <input type="text" class="form-control" name="q" placeholder="Search" value="{{ request.GET.q }}">
                             <button class="btn btn-light bg" type="submit"> <i class="material-icons md-search"></i></button>
                         </div>
-                    </form>
                 </div>
+            </form>
                 <div class="col-md-2 col-6">
                     <input type="date" value="02.05.2021" class="form-control">
                 </div>

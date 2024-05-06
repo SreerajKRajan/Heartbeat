@@ -50,52 +50,55 @@
                         </div>
                             
                             <hr>
-                            <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                        <div class="bt-1 border-color-1 mt-30 mb-30"></div>
                             <div class="payment_method">
                                 <div class="mb-25">
                                     <h4>Payment</h4>
                                 </div>
                                 <div class="payment_option d-flex">
                                     <div class="col-md-3">
-                                        <label >
+                                        <label>
                                             <div>
-                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio"  style="width: 30px; height: 30px;" name="payment-option" value="cod" checked>
-                                                <p>Cash on delivery</p> 
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                <input type="radio" style="width: 30px; height: 30px;" name="payment-option" value="cod" checked>
+                                                <p>Cash on delivery</p>
                                             </div>
                                         </label>
                                     </div>
-                                    {% comment %} <div class="col-md-2">
+                                    <div class="col-md-2">
                                         <label>
                                             <div>
-                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <input type="radio" style="width: 30px; height: 30px;" name="payment-option" value="razorpay">
-                                                <p>Razorpay</p> 
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                <input type="radio" style="width: 30px; height: 30px;" name="payment-option" value="razorpay">
+                                                <p>Razorpay</p>
                                             </div>
                                         </label>
                                     </div>
                                     <div class="col-md-3">
                                         <label>
                                             <div>
-                                                &nbsp;&nbsp;&nbsp;<input type="radio" style="width: 30px; height: 30px;" name="payment-option" value="wallet">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                &nbsp;&nbsp;&nbsp;
+                                                <input type="radio" style="width: 30px; height: 30px;" name="payment-option" value="wallet">
+                                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                                 <p>Wallet</p>
                                             </div>
                                         </label>
-                                    </div> {% endcomment %}
-                                </div>
-
-
-                                
-                                <div id="card-button-container" >
-                                    <a href="{% url 'order:order_place_cod' %}" id="cod-button" type="submit" name="submit" class="btn btn-fill-out btn-success btn-block mt-30">Place Order</a>
-                                </div>
-                                <div id="card-button-container" >
-                                    <button id="razorpay-button" type="submit" class="btn btn-fill-out btn-block mt-30" style="display: none;">Pay with Razorpay</button>
+                                    </div>
                                 </div>
                                 
-                                <div id="card-button-container" >
-                                    
-                                    <button id="wallet-button" type="submit" class="btn btn-fill-out btn-block mt-30" style="display: none;">Pay from Wallet</button>
-                                    <p class="ms-1" id="wallet-details" style="display: none;" >Wallet Balance: ₹<span id="wallet-balance"></span></p>
+                                <div id="card-button-container">
+                                    <button id="place-order-button" type="button" class="btn btn-fill-out btn-success btn-block mt-30">Place Order</button>
                                 </div>
+                                
+                                {% comment %} <div id="card-button-container">
+                                    <button id="razorpay-button" type="button" onclick="placeOrder('razorpay')" class="btn btn-fill-out btn-block btn-success mt-30" style="display: none;">Pay with Razorpay</button>
+                                </div>
+                                
+                                <div id="card-button-container">
+                                    <button id="wallet-button" type="button" onclick="placeOrder('wallet')" class="btn btn-fill-out btn-block btn-success mt-30" style="display: none;">Pay from Wallet</button>
+                                    <p class="ms-1" id="wallet-details" style="display: none;">Wallet Balance: ₹<span id="wallet-balance"></span></p>
+                                </div> {% endcomment %}
+                                
                                 <p>
                                 {% if messages %}
                                 {% for message in messages %}
@@ -105,8 +108,6 @@
                                 </p>
                                  
                             </div>
-
-                        </form> 
                     </div>
                     <div class="col-md-6">
                         <div class="order_review" style="margin-top:-25px">
@@ -164,6 +165,107 @@
         </section>
     </main>
 
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+    <script>
+        document.getElementById("place-order-button").addEventListener("click", function() {
+            var paymentOption = document.querySelector('input[name="payment-option"]:checked').value;
+            console.log(paymentOption,"hhhhh");
+            const csrftoken = getCookie("csrftoken");
+
+            if (paymentOption === 'cod') {
+                // Call the function for cash on delivery
+                window.location.href = "{% url 'order:order_place_cod' %}";
+            } else if (paymentOption === 'razorpay') {
+                fetch('{% url "order:checkout_razorpay" %}', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrftoken,
+                    },
+                    body: JSON.stringify({
+                        selected_payment_method: paymentOption,
+                    }),
+                })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json(); // Parse response JSON
+                })
+                .then((data) => {  // This is the missing closing bracket
+
+
+                    console.log("Received data:", data);
+                    var csrftoken = getCookie("csrftoken");
+                    console.log("CSRF token from form:", csrftoken);
+                    console.log("CSRF token from server:", "{{ csrf_token }}");
+                    console.log('{{ request.user.get_username }}')
+
+
+                    var options = {
+                        key: "rzp_test_fEZRFCVsDEpDlK", // Enter the Key ID generated from the Dashboard
+                        amount: data.context.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                        currency: "INR",
+                        name: "HeartBeat",
+                        description: "Test Transaction",
+                        order_id: data.context.order_id, // This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                        callback_url: "http://localhost:8000/order_place_razorpay/",
+                        handler: function (response) {
+                            // Handle Razorpay response
+                            window.location.reload();
+                        },
+                        prefill: {
+                            name: "{{ request.user.get_username }}", // Corrected username
+                            email: "{{ request.user.email }}",
+                            contact: "{{ request.user.phone_number }}",
+                        },
+                        notes: {
+                            address: "Razorpay Corporate Office",
+                        },
+                        theme: {
+                            color: "#3399cc",
+                        },
+                    };
+                    var rzp1 = new Razorpay(options);
+                    rzp1.on("payment.failed", function (response) {
+                        alert(response.error.code);
+                    });
+        
+                    rzp1.on("payment.success", function (response) {
+                        window.location.reload(); // Reload the page after successful payment
+                    });
+        
+                    rzp1.open();
+        
+                    //to allow the form to submit
+                    // Handle the response, perhaps redirect based on success
+                })
+                .catch((error) => {
+                    console.error("There was a problem with the fetch operation:", error);
+                });
+            }
+        });
+        
+    
+        function createRazorpayOrder(orderDetails) {
+            // Make an AJAX request to your Django view for Razorpay payment
+            $.ajax({
+                url: "{% url 'order:order_place_razorpay' %}",
+                type: 'POST',
+                data: orderDetails,
+                success: function(response) {
+                    // Redirect to success page or handle response
+                    window.location.href = response.redirect_url; // Assuming your view returns a redirect URL
+                },
+                error: function(xhr, status, error) {
+                    // Handle errors
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+    </script>
+    
 
     
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -234,7 +336,49 @@ function getCookie(name) {
     return cookieValue;
 }
 
-
 </script>
+
+{% comment %} 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    // Get references to the buttons
+    const codButton = document.getElementById('cod-button');
+    const razorpayButton = document.getElementById('razorpay-button');
+    const walletButton = document.getElementById('wallet-button');
+
+    const walletDetails = document.getElementById('wallet-details');
+    const walletBalance = document.getElementById('wallet-balance');
+
+    // Add event listener to the radio buttons
+    document.querySelectorAll('input[name="payment-option"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            // Check the value of the selected radio button
+            if (this.value === 'cod') {
+                // If Cash on Delivery is selected, show the Place Order button and hide the Razorpay button
+                codButton.style.display = 'inline-block';
+                razorpayButton.style.display = 'none';
+                walletButton.style.display = 'none';
+                walletDetails.style.display = 'none';
+            } else if (this.value === 'razorpay') {
+                // If Razorpay is selected, show the Razorpay button and hide the Place Order button
+                codButton.style.display = 'none';
+                walletButton.style.display = 'none';
+                walletDetails.style.display = 'none';
+                razorpayButton.style.display = 'inline-block';
+            } else if (this.value === 'wallet') {
+                walletButton.style.display = 'block';
+                walletBalance.style.display = 'inline-block';
+                walletDetails.style.display = 'block';
+                razorpayButton.style.display = 'none';
+                codButton.style.display = 'none';
+                
+            }
+        });
+    });
+    {% comment %} const walletBalanceValue = {{user_wallet.balance}}; // Example value, replace with actual wallet balance
+    walletBalance.textContent = walletBalanceValue;
+</script> {% endcomment %}
+
 
     {% endblock %} 

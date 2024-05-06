@@ -1,0 +1,69 @@
+{% extends "user_side/base2.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container-sm mt-5 mb-5">
+    <main class="main" style="background:#fff">
+        <section class="mt-50 mb-50 mr-80">
+            {% if not request.user.is_authenticated %}
+                <h2 class="text-center">Please login to view the wishlist</h2>
+                <br>
+                <div class="text-center">
+                    <a href="{% url 'user_app:shop'  %}" class="btn "><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
+                </div>
+            {% else %}
+                {% if wishlist_items|length < 1 %}
+                    <h2 class="text-center mt-5">Your Wishlist is Empty!</h2>
+                    <br>
+                    <div class="text-center">
+                        <a href="{% url 'user_app:shop'  %}" class="btn btn-secondary mb-5"><i class="bi bi-cart mr-2"></i>Continue Shopping</a>
+                    </div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table shopping-summery text-center table-bordered">
+                            <thead>
+                                <tr class="main-heading">
+                                    <th scope="col">Product</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for wishlist_item in wishlist_items %}
+                                <tr>
+                                    <td class="product-des product-name">
+                                        <div class="row align-items-center">
+                                            <div class="col-sm-3">
+                                                <a href="{% if wishlist_item.product.id %}{% url 'user_app:product_details' wishlist_item.product.id %}{% endif %}">
+                                                <img src="{{wishlist_item.product.thumbnail_image.url}}" alt="#" style="max-width: 100px;">
+                                                </a>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <h5 class="product-name" style="color:black"><a href="{% if wishlist_item.product.id %}{% url 'user_app:product_details' wishlist_item.product.id %}{% endif %}">{{wishlist_item.product.product.product_name}}</a></h5>
+                                                <p class="font-xs mb-0">Brand: {{wishlist_item.product.product.brand.brand_name}}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="price" data-title="Price">{{wishlist_item.product.sale_price}} INR<br>
+                                        {% if wishlist_item.product.stock < 10 %}
+                                            <span class="text-danger font-weight-bold">Limited Stock: {{wishlist_item.product.stock}} units remaining</span>
+                                        {% elif wishlist_item.product.stock == 0 %}
+                                            <span class="text-danger font-weight-bold">Out Of Stock</span>
+                                        {% endif %}
+                                    </td>
+                                    <td> 
+                                        <a href="{% url 'cart:remove_wishlist' id=wishlist_item.product.id %}" class="btn btn-danger btn-sm">Remove</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </section>
+    </main>
+</div>
+
+{% endblock %}

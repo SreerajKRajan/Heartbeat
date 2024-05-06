@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'admin_app',
     'cart',
     'order',
+    'offer_management',
+    'wallet',
 ]
 
 SITE_ID = 1
@@ -190,3 +192,7 @@ LOGIN_REDIRECT_URL = '/'
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 SOCIALACCOUNT_LOGIN_ON_GET=True
+
+RAZOR_PAY_KEY_ID = 'rzp_test_fEZRFCVsDEpDlK'
+KEY_SECRET = 'WdbL7GowtZiCWMdov2fO2rRR'
+

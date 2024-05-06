@@ -5,8 +5,14 @@ from user_app.models import *
 from django.contrib import messages
 from decimal import Decimal
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+import razorpay
+import json
+from django.http import JsonResponse
 
 
+n = settings.KEY_SECRET
 
 # Create your views here.
 @login_required
@@ -172,3 +178,477 @@ def return_product(request,item_id):
     product_variant.save()
 
     return redirect("order:profile_order_details", order.id)
+
+
+@csrf_exempt
+def order_place_razorpay(request):
+    print('hi')
+    if request.method == "POST":
+        print('hello')
+        try:
+            payment_id        = request.POST.get('razorpay_payment_id', '')
+            razorpay_order_id = request.POST.get('razorpay_order_id', '')
+            signature         = request.POST.get('razorpay_signature', '')
+
+            params_dict = {
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_payment_id': payment_id,
+                'razorpay_signature': signature
+            }
+            client = razorpay.Client(auth=(settings.RAZOR_PAY_KEY_ID, settings.KEY_SECRET))
+            result = client.utility.verify_payment_signature(params_dict)
+            
+            if not result :
+                return redirect('order:paymentfail')
+            else:
+                return redirect('order:order_success',razorpay_order_id,payment_id,signature)
+
+        except Exception as e:
+                print('Exception:', str(e))
+                return redirect('order:payment_fail_order')
+    else:
+        messages.error(request,"Payment is Faied, Try Again")
+        return redirect('cart:checkout')
+    
+
+def paymentfail(request):
+    return render(request, 'user_side/paymentfail.html')
+
+
+
+def checkout_razorpay(request):
+    if request.method == "POST":
+        print("request.body   :",request.body)
+        data = json.loads(request.body)
+        selected_payment_method = data.get('selected_payment_method')
+
+
+        if selected_payment_method == 'razorpay':
+
+            cart = Cart.objects.get(user = request.user)
+            cart_items = CartItem.objects.filter(cart = cart)
+
+            total = 0
+            for item in cart_items:
+                total += (item.product.sale_price * item.quantity)
+
+            print("HHHHHHHHHHHHH")
+
+
+
+            # total = 0
+            # cart_items = CartItem.objects.filter(user=current_user)
+            # for cart_item in cart_items:
+            #     total += cart_item.subtotal()
+            total_amount = int(total * 100)  # Replace with your actual total amount calculation
+            print("total amount:  ",total_amount)
+            currency = "INR"  # Replace with your currency
+            order_data = {
+                'amount': total_amount,
+                'currency': currency,
+                'receipt': 'order_rcptid_11',  # Replace with your receipt ID or generate dynamically
+                'payment_capture': 1  # Auto-capture payment
+            }
+
+
+            client = razorpay.Client(auth=(settings.RAZOR_PAY_KEY_ID, settings.KEY_SECRET))
+            print("Client",client)
+            order = client.order.create(data=order_data)
+            print("orderrrrrrrrr",order)
+            order_id = order['id']
+            payment_methods_instance = PaymentMethod.objects.get(method_name="RAZORPAY")
+            print(order,"ordereeeeeeeee")
+            payment = Payment.objects.create(
+                user = request.user,
+                payment_method = payment_methods_instance,
+                payment_order_id = order_id,
+                amount_paid = "0",
+                payment_status = 'PENDING',
+            )
+
+            context = {
+                'order_id': order['id'],
+                'amount': order['amount'],
+                'currency': order['currency'],
+                'key_id': settings.RAZOR_PAY_KEY_ID
+            }
+            
+            # Return JSON response with context data for client-side handling
+            return JsonResponse({'context': context})
+
+@login_required
+def order_success(request, razorpay_order_id,payment_id,signature):
+
+    payment = Payment.objects.get(payment_order_id=razorpay_order_id)
+                
+    payment.payment_status = 'SUCCESS'
+    payment.payment_id = payment_id
+    payment.payment_signature = signature
+    user = payment.user
+    total = 0
+    total_with_orginal_price = 0
+    quantity = 0
+    discount = 0
+
+    # cart_item_instance= CartItem.objects.filter(cart__user=request.user).first()
+    # cart_item_id = cart_item_instance.pk
+
+    # cart_item = CartItem.objects.get(id = cart_item_id)
+
+    # cart = Cart.objects.get(cart_id=cart_item.cart)
+
+    # if cart.coupon_applied != None:
+
+    #     coupon_code = request.session['coupon_code']
+    #     del request.session['coupon_code']
+    #     try:
+    #         coupon = Coupon.objects.get(coupon_code = coupon_code)
+    #         user_coupon = UserCoupon.objects.get(user = request.user,coupon = coupon)
+    #         user_coupon.usage_count += 1
+    #         user_coupon.save()
+    #     except:
+    #         pass 
+    #     total = 0
+    #     total_with_orginal_price = 0
+    #     quantity = 0
+    #     discount = 0
+    #     cart_items = CartItem.objects.filter(user=user)
+    #     for cart_item in cart_items:
+    #         total += cart_item.subtotal()
+    #         total_with_orginal_price += (cart_item.product.max_price * cart_item.quantity)
+    #         quantity += cart_item.quantity
+
+
+    #     discount = total_with_orginal_price - total
+    #     total1 = total
+    #     total1 -= cart.coupon_discount
+    #     payment.amount_paid = total1
+    #     payment.save()
+
+
+    #     address = Address.objects.get(is_default=True, account=user)
+    #     address1 =[address.get_address_name(),address.street_address, address.town_city, address.state, address.state, address.country_region,address.zip_code,address.phone_number]
+
+    #     draft_order= Order.objects.create(
+    #             user=user,
+    #             shipping_address=address1,
+    #             order_total=total,
+    #             is_ordered  = True,
+    #             payment = payment,
+    #             additional_discount = discount,
+    #             order_grandtotal = total1,
+    #             coupon_discount = cart.coupon_discount
+    #         )
+        
+    #     draft_order.save()
+
+    #     for cart_item in cart_items:
+    #         product= cart_item.product
+    #         product.stock -= cart_item.quantity
+    #         product.save()
+    #     try:
+    #         disc_per = cart.coupon_discount/len(cart_items)
+
+    #     except ZeroDivisionError:
+    #         messages.error(request,"product is empty")
+    #         return redirect("order_app:paymentfail")
+        
+    #     for cart_item in cart_items:
+    #         o = OrderProduct.objects.create(
+    #             order           = draft_order,
+    #             user            = user,
+    #             product_variant = cart_item.product.get_product_name(),
+    #             product_id      = cart_item.product.id,
+    #             quantity        = cart_item.quantity,
+    #             product_price   = float(cart_item.product.sale_price),
+    #             images          = cart_item.product.thumbnail_image,
+    #             ordered         = True,
+    #         )
+    #         o.save()
+
+    #         o.grand_totol -= disc_per
+
+    #         o.save()
+
+    #     cart_items.delete()    
+
+    #     order_dtails=OrderProduct.objects.filter(user=user,order=draft_order)
+    #     for i in order_dtails:
+    #         address=i.order.shipping_address
+
+
+    #     cleaned_string = address.replace('[', '').replace(']', '')
+    #     split_data = [item.strip() for item in cleaned_string.split(',') if item.strip() != '' and item.strip() != 'None']
+
+    #     # Remove single quotes from each item
+    #     cleaned_data = [item.replace("'", "") for item in split_data]
+    #     str1 = str()
+    #     k = 1
+    #     for i in cleaned_data:
+    #         if k == 1:
+    #             str1+=i
+    #         else:
+    #             str1+=" "+i
+    #         k = 2
+
+    #     str1 = str1.replace(","," ")
+                
+
+    #     draft_order.shipping_address = str1
+    #     draft_order.save()    
+
+
+
+
+    #     draft_order.shipping_address = str1
+    #     draft_order.save()
+
+        
+    #     context = {
+    #                 'order_dtails' : draft_order,
+    #                 'address' : str1,
+    #                 'order_product' : order_dtails,
+    #                 'grand_total':total1,
+    #                 'total_with_orginal_price':total_with_orginal_price,
+    #                 'discount':discount,
+    #                 'coupon_discount':cart.coupon_discount
+    #                 }
+    #     return render(request, 'userside/user_orders/order-success.html', context)
+    # else:
+    cart_items = CartItem.objects.filter(cart__user=user)
+    for cart_item in cart_items:
+        total += cart_item.sub_total()
+        total_with_orginal_price += (cart_item.product.max_price * cart_item.quantity)
+        quantity += cart_item.quantity
+    discount = total_with_orginal_price - total
+    payment.amount_paid = total
+    payment.save()
+    address = Address.objects.get(is_default=True, account=user)
+    address1 =[address.get_address_name(),address.street_address, address.town_city, address.district, address.state, address.pin_code,address.phone_number]
+    draft_order= Order.objects.create(
+            user=user,
+            shipping_address=address1,
+            order_total=total,
+            additional_discount = discount,
+            is_ordered  = True,
+            payment = payment,
+            grand_total = total
+        )
+    for cart_item in cart_items:
+        product= cart_item.product
+        product.stock -= cart_item.quantity
+        product.save()
+    
+    for cart_item in cart_items:
+        OrderProduct.objects.create(
+        order           = draft_order,
+        user            = user,
+        product_variant = cart_item.product.product.product_name,
+        product_id      = cart_item.product.id,
+        quantity        = cart_item.quantity,
+        product_price   = float(cart_item.product.sale_price),
+        images          = cart_item.product.thumbnail_image,
+        ordered         = True,
+    )
+    cart_items.delete()    
+    order_dtails=OrderProduct.objects.filter(user=user,order=draft_order)
+    for i in order_dtails:
+        address=i.order.shipping_address
+    cleaned_string = address.replace('[', '').replace(']', '')
+    split_data = [item.strip() for item in cleaned_string.split(',') if item.strip() != '' and item.strip() != 'None']
+    # Remove single quotes from each item
+    cleaned_data = [item.replace("'", "") for item in split_data]
+    str1 = str()
+    k = 1
+    for i in cleaned_data:
+        if k == 1:
+            str1+=i
+        else:
+            str1+=" "+i
+        k = 2
+    str1 = str1.replace(","," ")
+            
+    draft_order.shipping_address = str1
+    draft_order.save()    
+    draft_order.shipping_address = str1
+    draft_order.save()
+    
+    context = {
+                'order_dtails' : draft_order,
+                'address' : str1,
+                'order_product' : order_dtails,
+                'grand_total':total,
+                'total_with_orginal_price':total_with_orginal_price,
+                'discount':discount,
+                }
+    return render(request, 'user_side/paymentsuccess.html', context)
+
+
+def payment_fail_order(request):
+    payment_method = PaymentMethod.objects.get(method_name = "RAZORPAY")
+    payment = Payment.objects.create(
+        user = request.user,
+        payment_status = 'FAILED',
+        payment_method = payment_method,
+        amount_paid = 0,
+        is_paid = False,
+    )
+
+    user = payment.user
+    total = 0
+    total_with_orginal_price = 0
+    quantity = 0
+    discount = 0
+
+    cart_item_instance= CartItem.objects.filter(cart__user=request.user).first()
+    cart_item_id = cart_item_instance.pk
+
+    cart_item = CartItem.objects.get(id = cart_item_id)
+
+    # cart = Cart.objects.get(cart_id=cart_item.cart)
+
+    # if cart.coupon_applied != None:
+    #     coupon_code = request.session['coupon_code']
+    #     del request.session['coupon_code']
+    #     try:
+    #         coupon = Coupon.objects.get(coupon_code = coupon_code)
+    #         user_coupon = UserCoupon.objects.get(user = request.user,coupon = coupon)
+    #         user_coupon.usage_count += 1
+    #         user_coupon.save()
+    #     except:
+    #         pass 
+    #     total = 0
+    #     total_with_orginal_price = 0
+    #     quantity = 0
+    #     discount = 0
+    #     cart_items = CartItem.objects.filter(user=user)
+    #     for cart_item in cart_items:
+    #         total += cart_item.subtotal()
+    #         total_with_orginal_price += (cart_item.product.max_price * cart_item.quantity)
+    #         quantity += cart_item.quantity
+
+
+    #     discount = total_with_orginal_price - total
+    #     total1 = total - cart.coupon_discount
+
+
+
+    #     address = Address.objects.get(is_default=True, account=user)
+    #     address1 =[address.get_address_name(),address.street_address, address.town_city, address.state, address.state, address.country_region,address.zip_code,address.phone_number]
+
+    #     draft_order= Order.objects.create(
+    #             user=user,
+    #             shipping_address=address1,
+    #             order_total=total,
+    #             is_ordered  = False,
+    #             payment = payment,
+    #             additional_discount = discount,
+    #             order_grandtotal = total1,
+    #             coupon_discount = cart.coupon_discount
+    #         )
+        
+    #     draft_order.save()
+    #     try:
+    #         disc_per = cart.coupon_discount/len(cart_items)
+
+    #     except ZeroDivisionError:
+    #         messages.error(request,"product is empty")
+    #         return redirect("order_app:paymentfail")
+        
+    #     for cart_item in cart_items:
+    #         o = OrderProduct.objects.create(
+    #             order           = draft_order,
+    #             user            = user,
+    #             product_variant = cart_item.product.get_product_name(),
+    #             product_id      = cart_item.product.id,
+    #             quantity        = cart_item.quantity,
+    #             product_price   = float(cart_item.product.sale_price),
+    #             images          = cart_item.product.thumbnail_image,
+    #             ordered         = False,
+    #         )
+    #         o.save()
+
+    #         o.grand_totol -= disc_per
+
+    #         o.save()
+
+    #     order_dtails=OrderProduct.objects.filter(user=user,order=draft_order)
+    #     for i in order_dtails:
+    #         address=i.order.shipping_address
+
+    #     cleaned_string = address.replace('[', '').replace(']', '')
+    #     split_data = [item.strip() for item in cleaned_string.split(',') if item.strip() != '' and item.strip() != 'None']
+
+    #     cleaned_data = [item.replace("'", "") for item in split_data]
+    #     str1 = str()
+    #     k = 1
+    #     for i in cleaned_data:
+    #         if k == 1:
+    #             str1+=i
+    #         else:
+    #             str1+=" "+i
+    #         k = 2
+
+    #     str1 = str1.replace(","," ")
+                
+
+    #     draft_order.shipping_address = str1
+    #     draft_order.save()    
+
+
+
+
+    #     draft_order.shipping_address = str1
+    #     draft_order.save()
+        
+    # else:
+    cart_items = CartItem.objects.filter(cart__user=user)
+    for cart_item in cart_items:
+        total += cart_item.sub_total()
+        total_with_orginal_price += (cart_item.product.max_price * cart_item.quantity)
+        quantity += cart_item.quantity
+    discount = total_with_orginal_price - total
+    address = Address.objects.get(is_default=True, account=user)
+    address1 =[address.get_address_name(),address.street_address, address.town_city, address.district, address.state, address.pin_code,address.phone_number]
+    draft_order= Order.objects.create(
+            user=user,
+            shipping_address=address1,
+            order_total=total,
+            additional_discount = discount,
+            is_ordered  = False,
+            payment = payment,
+            grand_total = total
+        )
+    
+    for cart_item in cart_items:
+        OrderProduct.objects.create(
+        order           = draft_order,
+        user            = user,
+        product_variant = cart_item.product.product.product_name,
+        product_id      = cart_item.product.id,
+        quantity        = cart_item.quantity,
+        product_price   = float(cart_item.product.sale_price),
+        images          = cart_item.product.thumbnail_image,
+        ordered         = False,
+    )
+    order_dtails=OrderProduct.objects.filter(user=user,order=draft_order)
+    for i in order_dtails:
+        address=i.order.shipping_address
+    cleaned_string = address.replace('[', '').replace(']', '')
+    split_data = [item.strip() for item in cleaned_string.split(',') if item.strip() != '' and item.strip() != 'None']
+    cleaned_data = [item.replace("'", "") for item in split_data]
+    str1 = str()
+    k = 1
+    for i in cleaned_data:
+        if k == 1:
+            str1+=i
+        else:
+            str1+=" "+i
+        k = 2
+    str1 = str1.replace(","," ")
+            
+    draft_order.shipping_address = str1
+    draft_order.save()    
+
+
+    return render(request, 'user_side/paymentfail.html')

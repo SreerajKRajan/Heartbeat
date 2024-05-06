@@ -20,34 +20,41 @@ import json
 
 # Create your views here.
 
-
 def shop(request):
+    query = request.GET.get('q')
     products = Product.objects.filter(is_available=True)
     category = Category.objects.filter(is_active=True)
-    brand    = Brand.objects.all()
-    colour   = Colour.objects.all()
+    brand = Brand.objects.all()
+    colour = Colour.objects.all()
 
     dicti = {}
 
+    if query:
+        # If there's a search query, filter products based on the existence of any related variants that match the query
+        products = products.filter(
+            Q(product_name__icontains=query) |
+            Q(brand__brand_name__icontains=query) |
+            Q(category__category_name__icontains=query)
+        ).distinct()
+
     for product in products:
-        product_variant = Product_Variant.objects.filter(product=product, is_active = True,product__category__is_active = True).order_by("created_at").first()
+        product_variant = product.products.first()  # Get the first product variant related to the product
 
         if product_variant:
             variant_images = Additional_Product_Image.objects.filter(product_variant=product_variant)
             dicti[product_variant] = list(variant_images)
 
-    # print(dicti)
-
     context ={
         'category': category,
-        'brand':brand,
-        'products':products,
+        'brand': brand,
+        'products': products,
         'colour': colour,
         'product_variant': dicti
-
     }
-  
+
     return render(request, 'user_side/shop.html', context)
+
+
 
 
 def categories(request,category_id):
