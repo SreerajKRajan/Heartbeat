@@ -307,6 +307,57 @@ def order_list_details(request,id):
         return render(request,'admin_side/order_list_details.html',context)
     return redirect('admin_login')
 
+from django.utils import timezone
+
+
+def sales_report(request):
+    if request.user.is_authenticated and request.user.is_superadmin:
+        start_date_value = ""
+        end_date_value = ""
+        order_products = OrderProduct.objects.none()  # Initialize as empty queryset
+        
+        try:
+            orders = Order.objects.filter(is_ordered=True).order_by('-created_at')
+            order_products = OrderProduct.objects.filter(order__payment__payment_status__in=["SUCCESS"], order_status__in=["Delivered", "Accepted", "New"])
+
+            total_amount = 0
+            for i in order_products:
+                total_amount += i.grand_total
+
+        except Exception as e:
+            print("its exception", str(e))
+
+        if request.method == 'POST':
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
+            start_date_value = start_date
+            end_date_value = end_date
+            if start_date and end_date:
+                start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
+                end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+
+                # Convert to timezone-aware datetime objects
+                start_date = timezone.make_aware(start_date)
+                end_date = timezone.make_aware(end_date)
+
+                order_products = order_products.filter(created_at__range=(start_date, end_date))
+                total_amount = 0
+                for i in order_products:
+                    if i.grand_total is not None:
+                        total_amount += i.grand_total
+    
+        context = {
+            'orders': order_products,
+            'start_date_value': start_date_value,
+            'end_date_value': end_date_value,
+            'total_amount': total_amount
+        }
+
+        return render(request, 'admin_side/sales_report.html', context)
+    return redirect('admin_login')
+
+
+
 
 
 

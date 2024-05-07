@@ -41,7 +41,9 @@ urlpatterns = [
     path('change_order_status/<int:order_id>/<str:status>/<int:user_id>/', views.change_order_status, name='change_order_status'),
     path('order_list_details/<int:id>/', views.order_list_details, name='order_list_details'),
 
+    ################## Sales Report #############################################
 
+    path('sales_report/',views.sales_report,name='sales_report'),
 
 
 
