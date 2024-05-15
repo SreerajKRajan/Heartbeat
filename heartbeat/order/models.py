@@ -27,6 +27,7 @@ class Payment(models.Model):
     payment_status   = models.CharField(choices = PAYMENT_STATUS_CHOICES,max_length=20)
     is_paid          = models.BooleanField(default=False)
     created_at       = models.DateTimeField(auto_now_add=True)
+    payment_signature   = models.CharField(max_length=100, null=True, blank=True)
     
     def __str__(self):
         return self.payment_id

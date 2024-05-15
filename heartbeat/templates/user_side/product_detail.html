@@ -65,13 +65,26 @@
 						<h4 class="mtext-105 cl2 js-name-detail p-b-14">
 							{{ product.product.product_name }}
 						</h4>
+						{% if product.stock < 5 %}
+					    <div class="bg-danger text-white px-3 py-2 rounded d-inline-block text-center align-middle" style="font-size: 0.9rem;">
+					        <p class="m-0"><i class="bi bi-alarm mr-2"></i>{{ product.stock }} Stocks left</p>
+					    </div>
+						{% elif product.stock <= 0 %}
+					    <div class="bg-danger text-white px-3 py-2 rounded d-inline-block text-center align-middle" style="font-size: 0.9rem;">
+					        <p class="m-0">Out of Stock</p>							
+					    </div>
+						{% endif %}
 
-						<span class="mtext-106 cl2">
-							{{ product.product.base_price }}
-						</span>
+						{% if product.offer_discount > 0 %}
+						<h3 class="font-weight-semi-bold mb-4">  <p>Category Offer: ₹<del style="color:red">{{ product.offer_discount|floatformat:"0" }}</del></p> <h6><del>{{ product.max_price }}</del><h6> <h3>₹ {{product.sale_price}}</h3></h3>
+						{%else%}
+						<h3 class="font-weight-semi-bold mb-4">₹ {{product.sale_price}}      
+							<h6 style="color: red;"><del>{{ product.max_price }}</del><h6></h3>
+						{% endif %}
 
 						<p class="stext-102 cl3 p-t-23">
-							{{ product.product.description }}						</p>
+							{{ product.product.description }}					
+						</p>
 						
 						<!--  -->
 						<div class="p-t-33">

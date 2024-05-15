@@ -103,9 +103,25 @@
                         <span class="text">Orders List</span>
                     </a>
                 </li>
-                <li class="menu-item ">
-                    <a class="menu-link" href="{% url 'offer_management:referral_offer' %}"> <i class="icon material-icons md-monetization_on"></i>
+                <li class="menu-item has-submenu">
+                    <a class="menu-link" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="icon material-icons md-monetization_on"></i>
                         <span class="text">Offer Management</span>
+                    </a>
+                    <div class="submenu">
+                        <a class="menu-item" href="{% url 'offer_management:category_offer' %}">
+                            <i class="icon material-icons md-local_offer"></i>
+                            <span class="text">Category Offer</span>
+                        </a>
+                        <a class="menu-item" href="{% url 'offer_management:referral_offer' %}">
+                            <i class="icon material-icons md-monetization_on"></i>
+                            <span class="text">Refferal Offer</span>
+                        </a>
+                    </div>
+                </li>           
+                <li class="menu-item ">
+                    <a class="menu-link" href="{% url 'coupon_list' %}"> <i class="icon material-icons md-local_offer"></i>
+                        <span class="text">Coupon Management</span>
                     </a>
                 </li>           
             </ul>
@@ -193,7 +209,6 @@
         </footer>
 
     </main> 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="{% static 'assets_admin/js/vendors/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'assets_admin/js/vendors/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'assets_admin/js/vendors/select2.min.js' %}"></script>

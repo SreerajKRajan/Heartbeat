@@ -4,6 +4,9 @@ from django.urls import reverse
 from django.db.models import UniqueConstraint, Q, F, Avg, Count
 from user_app.models import Account
 from django.utils import timezone
+from decimal import Decimal
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 
 # Create your models here.
@@ -104,9 +107,58 @@ class Product_Variant(models.Model):
     is_active            = models.BooleanField(default=True)
     created_at           = models.DateTimeField(auto_now_add=True)
     updated_at           = models.DateTimeField(auto_now=True)
+    offer                = models.BooleanField(default=False)
+    offer_price          = models.DecimalField(max_digits=8, decimal_places=2,null=True,blank = True)
+    offer_discount       = models.DecimalField(max_digits=8, decimal_places=2, default=0.00)
 
+    def apply_category_offer_discount(self):
+        from offer_management.models import CategoryOffer
+
+        category = self.product.category
+        category_offer = CategoryOffer.objects.filter(category=category, is_active=True).order_by('-id').first()
+        
+        if category_offer:
+            print("Category offer triggered:", category_offer.discount_percentage)
+            discount_decimal = Decimal(category_offer.discount_percentage) / 100
+            print("Discount decimal:", discount_decimal)
+            
+            try:
+                # Perform discount calculation
+                discount_amount = self.offer_price * discount_decimal
+                print("Discount amount:", discount_amount)
+            except Exception as e:
+                print("Exception while calculating discount amount:", e)
+                return 0
+            
+            # Apply the discount
+            self.sale_price = self.offer_price - discount_amount
+            self.offer = True
+            self.offer_discount = discount_amount
+            self.save()
+            # No need to call self.save() here
+
+            print("Discount amount applied:", discount_amount)
+            return discount_amount
+        else:
+            self.offer = False
+            self.offer_discount = 0
+            self.sale_price = self.offer_price
+            # No need to call self.save() here
+
+            print("No category offer found")
+            return 0
+        
+
+    def get_product_name(self):
+        return self.product.product_name
+    
     def __str__(self):
         return self.product.product_name
+
+@receiver(pre_save, sender=Product_Variant)
+def set_offer_price(sender, instance, **kwargs):
+    if not instance.offer_price:
+        instance.offer_price = instance.sale_price
 
 
 

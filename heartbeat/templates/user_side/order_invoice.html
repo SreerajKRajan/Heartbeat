@@ -1,0 +1,135 @@
+{% extends "user_side/base2.html" %}
+{% load static %}
+{% block content %}
+<title>Invoice</title>
+<style>
+    .container-1 {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+    }
+
+    h1 {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .address {
+        margin-bottom: 20px;
+    }
+
+    .order-details {
+        margin-top: 40px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f0f0f0;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        margin: 5px 0;
+    }
+</style>
+
+<div class="container-1 mt-5 mb-5">
+    <div id="invoice">
+        <h1 style="color: rgb(96, 166, 192);">Invoice</h1>
+        <div class="address">
+            <p><strong>User Name:</strong> {{user.username}}</p>
+            <p style="font-weight: 500;">{{order.shipping_address}}</p>
+        </div>
+        <div class="site-name">
+            <p><strong>Site Name:</strong> HeartBeat </p>
+        </div>
+        <div class="invoice-id">
+            <p><strong>Invoice ID:</strong>{{order.order_number}}</p>
+        </div>
+        {% comment %} {% if order.coupon_discount > 0 %} {% endcomment %}
+
+        <div class="order-details">
+            <h2 style="color:#6F6F6F">Order Details</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Actual Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in order_products %}
+                    <tr>
+                        <td>
+                            {{i.product_variant}}
+                        </td>
+                        <td>{{i.quantity}}</td>
+                        <td>{{i.product_price}}</td>
+                        <td><strong>{{i.grand_total}}</strong></td>
+                    </tr>
+                    {% endfor %}
+  
+                </tbody>
+            </table>
+            <div class="mt-3">
+                <h6>Subtotal: {{order.order_total}} rs</h6>
+                <div class='d-flex'>
+                <h6>Discount: <h6 style = "color:red"> 0 </h6></h6>
+                </div>
+                <h6>Grand total: {{order.grand_total}} /-</h6>
+            </div>
+        </div>        
+    </div>
+    <button type="button" class="btn" style="background-color: rgb(26, 24, 23); color: #fff;" onclick="generate_pdf('INV12345')">Print PDF</button>
+    <button type="button" class="btn" style="background-color: rgb(26, 24, 23); color: #fff;" onclick="exportToExcel()">Export to Excel</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.2/xlsx.full.min.js"></script>
+
+<script>
+    function generate_pdf(invoiceId) {
+        const { jsPDF } = window.jspdf;
+        let doc = new jsPDF();
+        let pdfjs = document.getElementById('invoice');
+
+        doc.html(pdfjs, {
+            callback: function(doc) {
+                doc.save("invoice_" + invoiceId + ".pdf");
+            },
+            x: 12,
+            y: 12,
+            width: 170, // target width in the PDF document
+            windowWidth: 650 // window width in CSS pixels
+        });
+    }
+
+    function exportToExcel() {
+        // Select the content container
+        var content = document.getElementById('invoice');
+
+        // Convert the content into an Excel file
+        var wb = XLSX.utils.table_to_book(content);
+
+        // Save the workbook as an Excel file
+        XLSX.writeFile(wb, 'invoice.xlsx');
+    }
+</script>
+
+{% endblock %}

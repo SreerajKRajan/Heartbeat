@@ -185,6 +185,14 @@ def return_product(request,item_id):
     product_variant.stock += ordered_product.quantity
     product_variant.save()
 
+
+    wallet = Wallet.objects.get(user=request.user)
+    wallet.balance+= ordered_product.grand_total
+    wallet.save()
+
+
+    WalletTransaction.objects.create(wallet = wallet,transaction_type = "CREDIT", transaction_detail = "Order Returned", amount = ordered_product.grand_total)
+
     return redirect("order:profile_order_details", order.id)
 
 
@@ -660,3 +668,131 @@ def payment_fail_order(request):
 
 
     return render(request, 'user_side/paymentfail.html')
+
+
+def repay_payment(request,id):
+
+    if request.method == 'POST':
+        order = Order.objects.get(id = id)
+        ordered_products = OrderProduct.objects.filter(order = order)
+        payment = Payment.objects.get(id = order.payment.id)
+
+        client = razorpay.Client(auth=(settings.RAZOR_PAY_KEY_ID, settings.KEY_SECRET))
+
+        payment_data = {
+                'amount': int(order.grand_total)*100,
+                'currency': 'INR',
+                'receipt': 'order_fund',  # Update as needed
+                'payment_capture': 1  # Auto-capture payment
+        }
+        try:
+
+            payment = client.order.create(data=payment_data)
+            return JsonResponse({'success': True,'order_id': payment['id'],'amount': payment['amount'], 'product_order_id':order.id})
+        except Exception as e:
+            print(str(e))
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+
+@csrf_exempt
+def repayment_handler(request):
+    if request.method == "POST":
+        try:
+
+            id = request.GET.get('id', '')
+            order = Order.objects.get(id = id)
+
+            payment_id        = request.POST.get('razorpay_payment_id', '')
+            razorpay_order_id = request.POST.get('razorpay_order_id', '')
+            signature         = request.POST.get('razorpay_signature', '')
+
+            params_dict = {
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_payment_id': payment_id,
+                'razorpay_signature': signature
+            }
+            
+            client = razorpay.Client(auth=(settings.RAZOR_PAY_KEY_ID, settings.KEY_SECRET))
+            result = client.utility.verify_payment_signature(params_dict)
+
+            if not result:
+                messages.error(request,"Payment Faild Try Again")
+
+                return redirect("order:profile_order_details",id)
+            else:
+                try:
+
+                    return redirect('order:repayment_success',params_dict=params_dict,id=id) 
+                except Exception as e:
+                    print("exception:   ",str(e))
+        except Exception as e:
+            print('Exception:', str(e))
+            messages.error(request,"Payment Faild Try Again")
+
+            return redirect("order:profile_order_details",id)
+    messages.error(request,"Payment Faild Try Again")
+
+
+    return redirect("order:profile_order_details",id)
+
+
+
+
+def repayment_success(request,params_dict,id):
+    import ast
+    params_dict = ast.literal_eval(params_dict)
+    order = Order.objects.get(id = id)
+    razorpay_order_id = params_dict.get('razorpay_order_id', '')
+    razorpay_payment_id = params_dict.get('razorpay_payment_id', '')
+    razorpay_signature = params_dict.get('razorpay_signature', '')
+
+
+    payment = Payment.objects.get(id = order.payment.id)
+    payment.payment_status = "SUCCESS"
+    payment.payment_signature = razorpay_signature,
+    payment.amount_paid = order.grand_total,
+    payment.is_paid = True
+    payment.payment_order_id = razorpay_order_id
+
+    payment.save()
+    ordered_products = OrderProduct.objects.filter(order = order)
+
+    for i in ordered_products:
+        i.ordered = True
+
+    order.is_ordered =True
+
+    for i in ordered_products:
+        try:
+            product = Product_Variant.objects.get(id = i.product_id)
+            product.stock -= i.quantity
+            product.save()
+        except:
+            pass
+ 
+
+    messages.success(request,"Payment Completed Successfully")
+    return redirect("order:profile_order_details",id)
+
+
+
+@login_required
+def get_invoice(request,id):
+
+    user_id = request.user.id
+    user = Account.objects.get(id = user_id)
+    order_actual_total = 0
+    order = Order.objects.get(id = id)
+    order_products = OrderProduct.objects.filter(order = order)
+
+    for i in order_products:
+        order_actual_total += i.product_price
+
+    context = {
+        "user" : user,
+        "order" : order,
+        "order_products" : order_products,
+        "order_actual_total":order_actual_total,
+    }
+
+    return render(request,"user_side/order_invoice.html",context)

@@ -15,7 +15,7 @@ class CategoryOffer(models.Model):
     offer_name           = models.CharField(max_length=100)
     expire_date          = models.DateField()
     category             = models.ForeignKey(Category, on_delete=models.CASCADE)  # ForeignKey relationship with Category
-    discount_percentage  = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    discount_percentage  = models.DecimalField(max_digits=5, decimal_places=0)
     is_active            = models.BooleanField(default=True)
     
     def __str__(self):

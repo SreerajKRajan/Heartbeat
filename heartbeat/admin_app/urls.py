@@ -45,6 +45,10 @@ urlpatterns = [
 
     path('sales_report/',views.sales_report,name='sales_report'),
 
+    path('add_coupon/', productView.add_coupon, name='add_coupon'),
+    path('coupon_list/', productView.coupon_list, name='coupon_list'),
+    path('toggle_coupon_status/', productView.toggle_coupon_status, name='toggle_coupon_status'),
+
 
 
 

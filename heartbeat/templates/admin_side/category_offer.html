@@ -1,0 +1,128 @@
+{% extends 'admin_side/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Category Offers</h2>
+            <p>Add, edit or delete category offers</p>
+
+            {% if messages %}
+            <div class="col-12">
+                <div class="alert alert-info" role="alert">
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div>
+            <input type="text" placeholder="Search Category Offers" class="form-control bg-white">
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="offer_name" class="form-label">Offer Name</label>
+                            <input type="text" placeholder="Type here" class="form-control" id="offer_name" name="offer_name" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="expire_date" class="form-label">Expire Date</label>
+                            <input type="date" class="form-control" id="expire_date" name="expire_date" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" name="category">
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.category_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="discount_percentage" class="form-label">Discount Percentage</label>
+                            <input type="text" placeholder="Type here" class="form-control" id="discount_percentage" name="discount_percentage" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Is Active</label>
+                            <select class="form-select" name="is_active">
+                                <option value="1" selected>Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid">
+                            <button class="btn btn-primary">Create Category Offer</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-md-9">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>SL no.</th>
+                                    <th>Offer Name</th>
+                                    <th>Expire Date</th>
+                                    <th>Category</th>
+                                    <th>Discount Percentage</th>
+                                    <th>Is Active</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for offer in category_offers %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td><b>{{ offer.offer_name }}</b></td>
+                                    <td>{{ offer.expire_date }}</td>
+                                    <td>{{ offer.category.category_name }}</td>
+                                    <td>{{ offer.discount_percentage }}%</td>
+                                    <td>
+                                        {% if offer.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="dropdown">
+                                            <button class="btn btn-light rounded btn-sm font-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="material-icons md-more_horiz"></i>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                <li><a class="dropdown-item" href="{% url 'offer_management:delete_category_offer' offer.id %}">Delete</a></li>
+                                                {% if offer.is_active %}
+                                                <li><a class="dropdown-item" href="{% url 'offer_management:deactivate_category_offer' offer.id %}">Deactivate</a></li>
+                                                {% else %}
+                                                <li><a class="dropdown-item" href="{% url 'offer_management:deactivate_category_offer' offer.id %}">Activate</a></li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div> <!-- .col// -->
+
+            </div> <!-- .row // -->
+        </div> <!-- card body .// -->
+    </div> <!-- card .// -->
+</section> <!-- content-main end// -->
+
+{% endblock %}

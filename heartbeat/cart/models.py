@@ -1,15 +1,25 @@
 from django.db import models
 from user_app.models import Account
-from product_management.models import Product_Variant
+from product_management.models import *
 
 # Create your models here.
 
 class Cart(models.Model):
     user = models.ForeignKey(Account, on_delete=models.CASCADE, null=True)
+    coupon = models.ForeignKey(UserCoupon,on_delete=models.SET_NULL,null=True)
+    coupon_applied = models.ForeignKey(Coupon,on_delete=models.CASCADE, default = None,null = True)
+    coupon_discount = models.IntegerField(default = 0)
     date_added = models.DateField(auto_now_add=True)
+    total_after_discount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+
 
     def __str__(self):
         return self.user.username
+    
+    def save(self, *args, **kwargs):
+        if self.coupon_applied is None:
+            self.coupon_discount = 0
+        super(Cart, self).save(*args,**kwargs)
     
 
 class CartItem(models.Model):

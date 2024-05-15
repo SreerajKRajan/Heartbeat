@@ -137,23 +137,76 @@
 
                                         <tr>
                                             <th>SubTotal</th>
-                                            <td class="product-subtotal" colspan="2">{{total}} INR</td>
+                                            <td class="product-subtotal" id="totalPrice" colspan="2">{{total}} INR</td>
                                         </tr>
                                         <tr>
                                             <th>Discount</th>
                                             <td colspan="2" id="discount">0 INR</td>
                                             
                                         </tr>
+                                        {% if coupon_discount %}
+                                        <tr>
+                                            <th>Coupon Discount</th>
+                                            <td colspan="2" id="discount">0 {{coupon_discount}}</td>
+                                            
+                                        </tr>
+                                        {% endif %}
                                         <tr>
                                             <th>Shipping</th>
                                             <td colspan="2"><em>Free Shipping</em></td>
                                         </tr>
                                         <tr>
                                             <th>Total</th>
-                                            <td colspan="2" class="product-subtotal" ><span class="font-xl text-brand fw-900" id="net_total">{{total}} INR</span></td>
+                                            <td colspan="2" class="product-subtotal" ><span class="font-xl text-brand fw-900" id="finalTotal">{{ total }} INR</span></td>
                                         </tr>
                                     </tbody>
                                 </table>
+                                <form method="post" id="couponForm">
+                                    {% csrf_token %}
+                                    <div class="input-group mb-3 col-lg-3 mt-4 pl-0">
+                                        <input type="text" class="form-control" id="inputField" name="coupencode" placeholder="Enter code"  style="width: 70%;">
+                                        <div class="input-group-append" id="applybutton">
+                                            <button type="submit" class="btn btn-outline-info" id="applyButton">Apply</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                
+                                <div class="input-group-append" >
+                                    <a href = "{% url 'cart:cancel_coupon' %}">
+                                    <button class="btn btn-outline-info d-none" id="cancelButton">Cancel Button</button>
+                                    </a>
+                                </div>
+                                <div class="input-group-append mb-3">
+                                    <button type="button" class="btn btn-outline-info" id="applyCouponBtn">Show Coupons</button>
+                                </div>
+
+                                <div class="modal" tabindex="-1" role="dialog" id="couponModal">
+                                    <div class="modal-dialog modal-sm" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Available Coupons</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            {% for i in coupens %}
+                                            <div class="modal-body">
+                                                <!-- List of available coupons -->
+                                                <ul class='d-flex justify-content-between'>
+                                                    <li><span  id="{{i.id}}">{{i.coupon_code}}</span>  {{i.discount_percentage}}% off <span>Min Amount{{i.minimum_amount}}</span></li>
+                                                    <li><button onClick = 'copycoupen("{{ i.id }}")' class='rounded-3 px-2 py-1' style="font-size: 12px; border:none">copy</button></li>
+                                                    <!-- Add more coupons as needed -->
+                                                </ul>
+                                            </div>
+                                            {%endfor%}
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                <!-- Apply coupon button -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                    </div>
                             </div>
                                
                         </div>
@@ -337,6 +390,123 @@ function getCookie(name) {
 }
 
 </script>
+
+
+<script>
+
+
+    var total_with_orginal_price = document.getElementById('totalPrice').textContent;
+var numeric_total_with_orginal_price = total_with_orginal_price.replace(/[^\d.-]/g, ''); // Remove non-numeric characters
+
+// Apply Coupon button click handler
+document.getElementById('applyCouponBtn').addEventListener('click', function() {
+    // Show the coupon modal
+    $('#couponModal').modal('show');
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const couponForm = document.getElementById("couponForm");
+
+    couponForm.addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent the form from submitting normally
+
+        const formData = new FormData(couponForm); // Get form data
+        const coupencode = formData.get("coupencode");
+
+        // Check if the coupon has already been applied
+
+
+        // Fetch request to handle form submission
+        fetch("{% url 'cart:apply_coupon' %}", {
+            method: "POST",
+            body: JSON.stringify({ coupencode: coupencode }),
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken"), // Function to get CSRF token
+            },
+        })
+        .then((response) => {
+            console.log(response)
+            console.log("errorrrrrrrrrr")
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
+        .then((data) => {
+            console.log("its data",data)
+
+            // Handle response data
+            //console.log("data",data)
+            if (data.success) {
+                // Mark coupon as applied
+                // Update total and coupon discount
+                console.log(total_with_orginal_price)
+
+    // Update coupon discount amount
+                var couponDiscountElement = document.getElementById("couponDiscount");
+                if (!couponDiscountElement) {
+                    // Create new <dd> element if not already present
+                    var dlElement = document.getElementsByClassName("dlist-align")[0];
+                    if (dlElement) {
+                        var dtElement = document.createElement("dt");
+                        dtElement.textContent = "Coupon Discount:";
+                        
+                        couponDiscountElement = document.createElement("dd");
+                        couponDiscountElement.id = "couponDiscount";
+                        couponDiscountElement.className = "text-right";
+                        
+                        dlElement.appendChild(dtElement);
+                        dlElement.appendChild(couponDiscountElement);
+                    }
+                }
+
+                // Set the text content to ₹ plus the discount amount
+                if (couponDiscountElement) {
+                    couponDiscountElement.innerText = '₹' + parseInt(data.discount_amount);
+                }
+                document.getElementById("totalPrice").innerText = total_with_orginal_price;
+                console.log("1")
+                document.getElementById("couponDiscount").innerText = '₹' + parseInt(data.discount_amount);
+                console.log("2")
+                document.getElementById("finalTotal").innerText = '₹' + data.total;
+                console.log("3")
+
+                
+                // Show success toast
+                showToast("Success! Coupon applied successfully.", "toast-success");
+                const cancel_button = document.getElementById("cancelButton")
+                cancel_button.classList.remove("d-none")
+            } else {
+                console.log("SSSSSSSSSSSSSSSS",data.message,data.error)
+                // Show error toast
+                showToast(data.error, "toast-error");
+            }
+        })
+        .catch((error) => {
+            // Handle errors
+            showToast("An error occurred. Please try again.", "toast-error");
+        });
+    });
+
+    // Function to show toast messages
+    function showToast(message, type) {
+        const toastContainer = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.classList.add("toast", "show", type);
+        toast.innerHTML = message;
+        toastContainer.appendChild(toast);
+
+        setTimeout(function () {
+            toast.classList.remove("show");
+            toastContainer.removeChild(toast);
+        }, 3000);
+    }
+});
+
+
+</script>
+
 
 {% comment %} 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

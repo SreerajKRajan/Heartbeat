@@ -13,5 +13,8 @@ urlpatterns = [
     path('paymentfail/', views.paymentfail, name='paymentfail'),
     path('payment_fail_order/', views.payment_fail_order, name='payment_fail_order'),
     path('checkout_razorpay/', views.checkout_razorpay, name='checkout_razorpay'),
-
+    path('repay_payment/<int:id>/', views.repay_payment, name='repay_payment'),
+    path('repayment_handler/', views.repayment_handler, name='repayment_handler'),
+    path('repayment_success/<params_dict>/<id>/', views.repayment_success, name='repayment_success'),
+    path('get_invoice/<int:id>/', views.get_invoice, name='get_invoice'),
 ]

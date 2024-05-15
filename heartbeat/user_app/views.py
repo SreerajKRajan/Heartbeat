@@ -74,6 +74,8 @@ def categories(request,category_id):
 
 def product_details(request, product_id):
     product = Product_Variant.objects.get(id=product_id)
+    p_id = product.product_id
+    product_variant_select = Product_Variant.objects.filter(product_id=p_id)
     variant_images = Additional_Product_Image.objects.filter(product_variant=product)
 
     # Get related products based on the category of the current product
@@ -81,9 +83,17 @@ def product_details(request, product_id):
         product__category=product.product.category  # Filter products by the same category
     ).exclude(id=product_id)  # Exclude the current product from related products
 
+    
+    for i in product_variant_select:
+        i.apply_category_offer_discount()
+
+
+    print("product check",product)
+
     context = {
         "product": product,
         'variant_images': variant_images,
+        'product_variant_select': product_variant_select,
         'related_products': related_products  # Pass related products to the template
     }
     return render(request, 'user_side/product_detail.html', context)
@@ -237,6 +247,7 @@ def delete_address(request, id):
     addresses.delete()
     
     return redirect('user_app:address')
+
 
 @never_cache
 def signup_page(request):
@@ -512,13 +523,6 @@ def forgot_otp_verification(request):
             messages.warning(request, "Wrong Entry")
             return render(request, 'user_side/forgot_otp.html')
     return render(request, 'user_side/forgot_otp.html')
-
-
-
-    
-        
-
-
 
 
 @never_cache

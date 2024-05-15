@@ -23,25 +23,6 @@
 						Search
 					</button>
 				</form>
-
-				{% comment %} <div class="flex-w flex-c-m m-tb-10">
-					<div class="flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4 js-show-search">
-						<i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
-						<i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
-						Search
-					</div>
-				</div>
-				
-				<!-- Search product -->
-				<div class="dis-none panel-search w-full p-t-10 p-b-15">
-					<div class="bor8 dis-flex p-l-15">
-						<button class="size-113 flex-c-m fs-16 cl2 hov-cl1 trans-04">
-							<i class="zmdi zmdi-search"></i>
-						</button>
-
-						<input class="mtext-107 cl2 size-114 plh2 p-r-15" type="text" name="search-product" placeholder="Search">
-					</div>	
-				</div>			 {% endcomment %}
 			</div>
             {% if messages %}
             <div class="messages-container text-center" style="background-color: #dd838a; padding: 10px; color: white;">
@@ -51,52 +32,58 @@
                     {% endfor %}
                 </div>
             </div>
-            {% endif %}	
-			<div class="row isotope-grid">
-				{% for i in product_variant  %}
-				<div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">
-					<!-- Block2 -->
-					<div class="block2">
-						<div class="block2-pic hov-img0">
-							<a href="{% if i.id %}{% url 'user_app:product_details' i.id %}{% endif %}">
-							{% if i.thumbnail_image %}
-								<img src="{{ i.thumbnail_image.url }}" alt="IMG-PRODUCT">
-							{% else %}
-								<!-- Provide a placeholder image or handle the case as per your requirement -->
-								<img src="/path/to/placeholder/image.jpg" alt="Placeholder Image">
-							{% endif %}
-						</div>
-						<div class="block2-txt flex-w flex-t p-t-14">
-							<div class="block2-txt-child1 flex-col-l ">
-								<a href="{% if i.id %}{% url 'user_app:product_details' i.id %}{% endif %}" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
-									{{i.product.product_name}}
-								</a>
-								
-								<span class="stext-105 cl3">
-									{{i.product.base_price}}
-								</span>
-							</div>
+            {% endif %}
 
-							<div class="block2-txt-child2 flex-r p-t-3">
-								<a  href="{% url 'cart:add_wishlist' id=i.id %}" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-									<img class="icon-heart1 dis-block trans-04" src="{% static 'user_side/images/icons/icon-heart-01.png' %}" alt="ICON">
-									<img class="icon-heart2 dis-block trans-04 ab-t-l" src="{% static 'user_side/images/icons/icon-heart-02.png' %}" alt="ICON">
-								</a>
+			{% if product_variant %}
+				<div class="row isotope-grid">
+					{% for i in product_variant %}
+					<div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item women">
+						<!-- Block2 -->
+						<div class="block2">
+							<div class="block2-pic hov-img0">
+								<a href="{% if i.id %}{% url 'user_app:product_details' i.id %}{% endif %}">
+								{% if i.thumbnail_image %}
+									<img src="{{ i.thumbnail_image.url }}" alt="IMG-PRODUCT">
+								{% else %}
+									<!-- Provide a placeholder image or handle the case as per your requirement -->
+									<img src="/path/to/placeholder/image.jpg" alt="Placeholder Image">
+								{% endif %}
+							</div>
+							<div class="block2-txt flex-w flex-t p-t-14">
+								<div class="block2-txt-child1 flex-col-l ">
+									<a href="{% if i.id %}{% url 'user_app:product_details' i.id %}{% endif %}" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+										{{i.product.product_name}}
+									</a>
+									
+									<span class="stext-105 cl3">
+										{{i.product.base_price}}
+									</span>
+								</div>
+
+								<div class="block2-txt-child2 flex-r p-t-3">
+									<a  href="{% url 'cart:add_wishlist' id=i.id %}" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
+										<img class="icon-heart1 dis-block trans-04" src="{% static 'user_side/images/icons/icon-heart-01.png' %}" alt="ICON">
+										<img class="icon-heart2 dis-block trans-04 ab-t-l" src="{% static 'user_side/images/icons/icon-heart-02.png' %}" alt="ICON">
+									</a>
+								</div>
 							</div>
 						</div>
 					</div>
+					{% endfor %}
 				</div>
-				{% endfor %}
-
-				
+			{% else %}
+				<div class="text-center">
+					<h4 class="justify-content-center m-5">No items found</h4>
+				</div>
+			{% endif %}
 
 			<!-- Load more -->
 			<div class="flex-c-m flex-w w-full p-t-45">
-					{% comment %} <a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
-						Load More
-					</a> {% endcomment %}
+				{% comment %} <a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
+					Load More
+				</a> {% endcomment %}
 			</div>
 		</div>
 	</div>
 		
-	{% endblock content %}
+{% endblock content %}

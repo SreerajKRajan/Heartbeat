@@ -1,0 +1,150 @@
+{% extends 'admin_side/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Coupon List </h2>
+            <p>Lorem ipsum dolor sit amet.</p>
+        </div>
+        <div class="col-lg-2 col-md-12 text-end">
+            <a href="{% url 'add_coupon' %}" class="btn btn-primary">Add Coupon</a>
+        </div>
+    </div>
+    {% if messages %}
+    <div class="col-12">
+        <div class="alert alert-info" role="alert">
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>SL no.</th>
+                            <th scope="col">Coupon Code</th>
+                            <th scope="col">Discount Percentage</th>
+                            <th scope="col">Minimum Amount</th>
+                            <th scope="col">Active</th>
+                            <th scope="col" class="text-end"> Action </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for coupon in coupons %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ coupon.coupon_code }}</td>
+                            <td>{{ coupon.discount_percentage }}%</td>
+                            <td>₹ {{ coupon.minimum_amount }}</td>
+                            <td>
+                                {% if coupon.is_active %}
+                                <span class="badge rounded-pill alert-success" id='active'>Active</span>
+                                {% else %}
+                                <span class="badge rounded-pill alert-danger" id='inactive'>Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if coupon.is_active %}
+                                <button onclick="toggleCouponStatus({{ coupon.id }}, false)" class="btn btn-sm font-sm alert-danger rounded block-coupon-btn" id='unlist'>
+                                    Unlist
+                                </button>
+                                {% else %}
+                                <button onclick="toggleCouponStatus({{ coupon.id }}, true)" class="btn btn-sm font-sm alert-success rounded unblock-coupon-btn" id='list'>
+                                    List
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div> <!-- table-responsive //end -->
+        </div> <!-- card-body end// -->
+    </div> <!-- card end// -->
+</section> <!-- content-main end// -->
+
+<script>
+    function toggleCouponStatus(couponId, activate) {
+        fetch("{% url 'toggle_coupon_status' %}", {
+            method: "POST",
+            body: JSON.stringify({ coupon_id: couponId, activate: activate }),
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
+        .then((data) => {
+            if (data.success) {
+                console.log(data)
+                window.location.reload()
+
+
+                // Assuming success response includes updated coupon status
+                const couponStatus = data.active ? "Active" : "Inactive";
+                const badgeClass = data.active ? "alert-success" : "alert-danger";
+                const buttonAction = data.active ? "Unlist" : "List";
+
+                // Update UI elements
+                const couponRow = document.querySelector(`#coupon-${couponId}`);
+                const badge = couponRow.querySelector(".coupon-status-badge");
+                const actionButton = couponRow.querySelector(".toggle-coupon-status-btn");
+
+                badge.innerText = couponStatus;
+                badge.classList.remove("alert-success", "alert-danger");
+                badge.classList.add(badgeClass);
+                actionButton.innerText = buttonAction;
+                
+                showToast("Coupon status updated successfully.", "toast-success");
+            } else {
+                showToast("Error updating coupon status.", "toast-error");
+            }
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+            showToast("An error occurred. Please try again.", "toast-error");
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function showToast(message, type) {
+        const toastContainer = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.classList.add("toast", "show", type);
+        toast.innerHTML = message;
+        toastContainer.appendChild(toast);
+
+        setTimeout(function () {
+            toast.classList.remove("show");
+            toastContainer.removeChild(toast);
+        }, 3000);
+    }
+</script>
+{% endblock %}
