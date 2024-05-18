@@ -4,9 +4,6 @@
 <div class="main mt-5 mb-5">
 <section class="section-content padding-y bg">
     <div class="container">
-        {% comment %} <div class="progress mb-4">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">Step 4 of 4</div>
-        </div> {% endcomment %}
         <div class="row">
             <div class="col-lg-9">
                 <div class="card">
@@ -37,8 +34,7 @@
                                 </div>
                             {% endfor %}
                         </div>
-                        <p><strong>Total Price:</strong> ₹{{ total_float }}</p>
-                        <p><strong>Discount:</strong> 0 INR</p>
+                        <p><strong>Total Price:</strong> ₹{{ total_float1 }}</p>
                         {% comment %} {% if coupon_discount %}
                         <p><strong>Coupon Discount:</strong> ₹{{ coupon_discount }}</p>
 
@@ -55,13 +51,9 @@
                         <h5 class="card-title text-primary mb-4">Order Summary</h5>
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <span>Total price:</span>
-                            <span class="text-dark font-weight-bold">₹{{ total_float }}</span>
+                            <span class="text-dark font-weight-bold">₹{{ total_float1 }}</span>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <span>Discount:</span>
-                            <span class="text-danger font-weight-bold">0 INR</span>
-                        </div>
-                        {% comment %} {% if coupon_discount %}
+                        {% if coupon_discount %}
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <span>Coupon Discount:</span>
                             <span class="text-danger font-weight-bold">- ₹{{ coupon_discount }}</span>
@@ -69,14 +61,14 @@
                         <hr>
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h5 class="font-weight-bold">Total:</h5>
-                            <h5 class="text-dark font-weight-bold">₹{{ grand_total }}</h5>
-                        </div>
-                        {% else %} {% endcomment %}
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="font-weight-bold">Total:</h5>
                             <h5 class="text-dark font-weight-bold">₹{{ total_float }}</h5>
                         </div>
-                        {% comment %} {% endif %} {% endcomment %}
+                        {% else %}
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="font-weight-bold">Total:</h5>
+                            <h5 class="text-dark font-weight-bold">₹{{ total_float1 }}</h5>
+                        </div>
+                        {% endif %}
                         <hr>
            
                         <a href="{% url 'user_app:shop' %}" class="btn btn-primary btn-block">Continue Shopping</a>

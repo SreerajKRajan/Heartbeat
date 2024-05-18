@@ -2,150 +2,124 @@
 {% load static %}
 
 {% block content %}
-<div class="d-flex justify-content-center">
-    <div class="menu-desktop justify-content-center">
-        <ul class="main-menu">
-            <li>
-                <a href="{% url 'user_app:user_profile' %}">Profile</a>
-            </li>
-            <li>
-                <a href="{% url 'user_app:address' %}">Address</a>
-            </li>
-            <li>
-                <a href="{% url 'user_app:profile_orders' %}">Orders</a>
-            </li>
-            <li>
-                <a href="{% url 'wallet:wallet' %}">Wallet</a>
-            </li>
-        </ul>
+    <div class="d-flex justify-content-center">
+        <div class="menu-desktop justify-content-center">
+            <ul class="main-menu">
+                <li><a href="{% url 'user_app:user_profile' %}">Profile</a></li>
+                <li><a href="{% url 'user_app:address' %}">Address</a></li>
+                <li><a href="{% url 'user_app:profile_orders' %}">Orders</a></li>
+                <li><a href="{% url 'wallet:wallet' %}">Wallet</a></li>
+            </ul>
+        </div>
     </div>
-</div>
-<!-- Wallet Section -->
-<section class="section-padding bg-light">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="text-center mb-4">
-                    <h2 class="section-title"><i class="bi bi-wallet-fill mr-3"></i>Wallet</h2>
-                    {% comment %} <div class="wallet-balance mt-3">
-                        <h4>Current Balance: ₹{{ user_wallet.balance }}</h4>
-                    </div> {% endcomment %}
-                </div>
 
-                <div class="transaction-history mt-4">
-                    <h4>Current Balance: ₹{{ user_wallet.balance }}</h4>
-                    <h5 class="mb-3">Transaction History</h5>
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for transaction in wallet_transaction %}
-                                <tr>
-                                    <td>{{ transaction.created_at }}</td>
-                                    <td>₹{{ transaction.amount }}</td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="2" class="text-center">No transactions yet.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="add-money mt-4">
-                    <h5 class="mb-3">Add Money</h5>
-                    <form method="POST" id="addFundsForm">
-                        {% csrf_token %}
-                        <div class="input-group">
-                            <input type="number" name="amount" id="amount" placeholder="Enter amount in ₹" required>
-                            <button type="submit" id="addFundsBtn" class="btn btn-primary ml-2">Add Money</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="card mt-4 mb-4">
-                    <div class="card-header">
-                        Transaction History Details
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group">
-                            {% for transaction in wallet_transaction %}
-                            <li class="list-group-item">
-                                {% if transaction.transaction_type == 'CREDIT' %}
-                                    <span style="color: green;">{{ transaction.amount }}</span> - {{ transaction.created_at }} - {{ transaction.transaction_type }} <span style="color:red"> <p>{{ transaction.transaction_detail }}<p></span>
-                                {% elif transaction.transaction_type == 'DEBIT' %}
-                                    <span style="color: red;">{{ transaction.amount }}</span> - {{ transaction.created_at }} - {{ transaction.transaction_type }}
-                                {% endif %}
-                            </li>
-                            {% endfor %}
-                        </ul>
+    <!-- Wallet Section -->
+    {% if messages %}
+    <div class="messages-container text-center" style="background-color: #dd838a; padding: 10px; color: white;">
+        <div class="message-box">
+            {% for message in messages %}
+                <span class="error">{{ message }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    <section class="section-padding bg-light">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="text-center mb-4">
+                        <h2 class="section-title"><i class="bi bi-wallet-fill mr-3"></i>Wallet</h2>
                     </div>
                 </div>
             </div>
+                    <div class="transaction-history mt-4">
+                        <h4>Current Balance: ₹{{ user_wallet.balance }}</h4>
+                    </div>
+
+                    <div class="add-money mt-4">
+                        <h5 class="mb-3">Add Money</h5>
+                        <form method="POST" id="addFundsForm">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input type="number" name="amount" id="amount" placeholder="Enter amount in ₹" required>
+                                <button type="submit" id="addFundsBtn" class="btn btn-primary ml-2">Add Money</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card mt-4 mb-4">
+                        <div class="card-header">Transaction History Details</div>
+                        <div class="card-body">
+                            <ul class="list-group">
+                                {% for transaction in wallet_transaction %}
+                                    <li class="list-group-item">
+                                        {% if transaction.transaction_type == 'CREDIT' %}
+                                            <span style="color: green;">{{ transaction.amount }}</span> - {{ transaction.created_at }} - {{ transaction.transaction_type }}
+                                            <span style="color:red"> <p>{{ transaction.transaction_detail }}<p></span>
+                                        {% elif transaction.transaction_type == 'DEBIT' %}
+                                            <span style="color: red;">{{ transaction.amount }}</span> - {{ transaction.created_at }} - {{ transaction.transaction_type }}
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
         </div>
-    </div>
-</section>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script>
-    document.getElementById("addFundsBtn").addEventListener("click", function(event) {
-        event.preventDefault();
-        const amount = document.getElementById("amount").value;
+    </section>
 
-        fetch("{% url 'wallet:wallet' %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Accept': 'application/json',
-            },
-            body: 'amount=' + amount
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log("data :",data)
-            if (data.success) {
-                console.log("data success")
-                var options = {
-                    key: "rzp_test_fEZRFCVsDEpDlK",
-                    amount: data.amount,
-                    currency: "INR",
-                    name: "HeartBeat",
-                    description: "Add Amount to Wallet",
-                    order_id: data.order_id,
-                    callback_url: "http://localhost:8000/wallet_handler/?amount=" + amount,
-                    handler: function(response) {
-                        // Handle successful payment
-                        alert("Payment successful!");
-                        window.location.reload();
-                    },
-                    "prefill": {
-                        "name": "{{ request.user.get_username }}",
-                        "email": "{{ request.user.email }}",
-                        // You can prefill other fields if needed
-                    },
-                    "theme": {
-                        "color": "#3399cc"
-                    }
-                };
-                var rzp1 = new Razorpay(options);
-                rzp1.open();
-            } else {
-                console.log("data fail")
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        document.getElementById("addFundsBtn").addEventListener("click", function(event) {
+            event.preventDefault();
+            const amount = document.getElementById("amount").value;
 
-                alert("Failed to create Razorpay order. Please try again.");
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("An error occurred while processing payment.");
+            fetch("{% url 'wallet:wallet' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json',
+                },
+                body: 'amount=' + amount
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("data :",data)
+                if (data.success) {
+                    console.log("data success")
+                    var options = {
+                        key: "rzp_test_fEZRFCVsDEpDlK",
+                        amount: data.amount,
+                        currency: "INR",
+                        name: "HeartBeat",
+                        description: "Add Amount to Wallet",
+                        order_id: data.order_id,
+                        callback_url: "http://localhost:8000/wallet_handler/?amount=" + amount,
+                        handler: function(response) {
+                            // Handle successful payment
+                            alert("Payment successful!");
+                            window.location.reload();
+                        },
+                        "prefill": {
+                            "name": "{{ request.user.get_username }}",
+                            "email": "{{ request.user.email }}",
+                            // You can prefill other fields if needed
+                        },
+                        "theme": {
+                            "color": "#3399cc"
+                        }
+                    };
+                    var rzp1 = new Razorpay(options);
+                    rzp1.open();
+                } else {
+                    console.log("data fail")
+                    alert("Failed to create Razorpay order. Please try again.");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while processing payment.");
+            });
         });
-    });
-</script>
+    </script>
 {% endblock %}

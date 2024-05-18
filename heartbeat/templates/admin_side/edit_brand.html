@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-9">
             <div class="content-header">
-                <h2 class="content-title">Edit Category</h2>
+                <h2 class="content-title">Edit Brand</h2>
             </div>
         </div>
         <div class="col-lg-6">
@@ -14,9 +14,9 @@
                     <form method="post">
                         {% csrf_token %}
                         <div class="mb-4">
-                            <label for="category_name" class="form-label">Category Name</label>
-                            <input type="text" placeholder="Type here" name="category_name" class="form-control"
-                                   id="edit_category" value="{{ category.category_name }}">
+                            <label for="category_name" class="form-label">Brand Name</label>
+                            <input type="text" placeholder="Type here" name="brand_name" class="form-control"
+                                   id="edit_category" value="{{ brand.brand_name }}">
                                    <p style="color: red" id="err-edit-cat"></p>
 
                         </div>                        
@@ -47,7 +47,7 @@
             if (editCategoryRegex.test(editCategoryName)) {
                 return true;
             } else {
-                document.getElementById("err-edit-cat").textContent = "Please enter a valid category name";
+                document.getElementById("err-edit-cat").textContent = "Please enter a valid brand name";
                 preventDefault = true;  // Set the flag to true if validation fails
                 return false;
             }

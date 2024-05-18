@@ -92,16 +92,21 @@
                         </a>
                     </div>
                 </li>
-
-                <li class="menu-item ">
-                    <a class="menu-link" href="{% url 'all_users' %}"> <i class="icon material-icons md-person"></i>
-                        <span class="text">Users List</span>
+                <li class="menu-item has-submenu">
+                    <a class="menu-link" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="icon material-icons md-store"></i> 
+                        <span class="text">Brand Management</span>
                     </a>
-                </li>
-                <li class="menu-item ">
-                    <a class="menu-link" href="{% url 'order_list' %}"> <i class="icon material-icons md-shopping_cart"></i>
-                        <span class="text">Orders List</span>
-                    </a>
+                    <div class="submenu">
+                        <a class="menu-item" href="{% url 'manage_brand' %}">
+                            <i class="icon material-icons md-store"></i> 
+                            <span class="text">Brands</span>
+                        </a>
+                        <a class="menu-item" href="{% url 'add_brand' %}">
+                            <i class="icon material-icons md-add_box"></i>
+                            <span class="text">Add Brand</span>
+                        </a>
+                    </div>
                 </li>
                 <li class="menu-item has-submenu">
                     <a class="menu-link" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -123,7 +128,17 @@
                     <a class="menu-link" href="{% url 'coupon_list' %}"> <i class="icon material-icons md-local_offer"></i>
                         <span class="text">Coupon Management</span>
                     </a>
-                </li>           
+                </li>
+                <li class="menu-item ">
+                    <a class="menu-link" href="{% url 'all_users' %}"> <i class="icon material-icons md-person"></i>
+                        <span class="text">Users List</span>
+                    </a>
+                </li>
+                <li class="menu-item ">
+                    <a class="menu-link" href="{% url 'order_list' %}"> <i class="icon material-icons md-shopping_cart"></i>
+                        <span class="text">Orders List</span>
+                    </a>
+                </li>                   
             </ul>
             <hr>
             <br>

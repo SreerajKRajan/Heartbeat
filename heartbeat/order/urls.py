@@ -17,4 +17,6 @@ urlpatterns = [
     path('repayment_handler/', views.repayment_handler, name='repayment_handler'),
     path('repayment_success/<params_dict>/<id>/', views.repayment_success, name='repayment_success'),
     path('get_invoice/<int:id>/', views.get_invoice, name='get_invoice'),
+    path('wallet_order/', views.wallet_order, name='wallet_order'),
+    path('place_order_wallet/', views.place_order_wallet, name='place_order_wallet'),
 ]

@@ -7,18 +7,22 @@
     <main class="main" style="background:#fff">
         <section class="mt-50 mb-50 mr-80">
             {% if not request.user.is_authenticated %}
+            <div class="container border border-4 p-4">
                 <h2 class="text-center">Please login to view the wishlist</h2>
                 <br>
                 <div class="text-center">
                     <a href="{% url 'user_app:shop'  %}" class="btn "><i class="fi-rs-shopping-bag mr-10"></i>Continue Shopping</a>
                 </div>
+            </div>
             {% else %}
                 {% if wishlist_items|length < 1 %}
+                <div class="container border border-4 p-4">
                     <h2 class="text-center mt-5">Your Wishlist is Empty!</h2>
                     <br>
                     <div class="text-center">
                         <a href="{% url 'user_app:shop'  %}" class="btn btn-secondary mb-5"><i class="bi bi-cart mr-2"></i>Continue Shopping</a>
                     </div>
+                </div>
                 {% else %}
                     <div class="table-responsive">
                         <table class="table shopping-summery text-center table-bordered">

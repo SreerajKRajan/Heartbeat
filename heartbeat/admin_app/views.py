@@ -9,7 +9,7 @@ from django.http import JsonResponse
 import json
 from django.db.models import Q
 from decimal import Decimal
-from product_management.models import Category, Product
+from product_management.models import *
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
 from datetime import datetime as dt
@@ -34,7 +34,6 @@ def admin_login(request):
         print(user)
         if user is not None and user.is_superadmin:
             login(request, user)
-            messages.success(request, 'Successfuly Logged in')
             return redirect('admin_dashboard')
         else:
             messages.warning(request, "Invalid Credentials")
@@ -245,7 +244,7 @@ def add_category(request):
             category_name = request.POST.get('category_name')
 
             if Category.objects.filter(category_name = category_name).exists():
-                messages.warning(request, 'Cqtegory already exists')
+                messages.warning(request, 'Category already exists')
                 return redirect('add_category')
 
             category = Category(
@@ -294,7 +293,62 @@ def unlist_category(request, category_id):
         return redirect('manage_category')
     return redirect('admin_login')
 
-        
+################### Brand Management ###############################
+
+def manage_brand(request):
+    if request.user.is_authenticated and request.user.is_superadmin:
+        brand = Brand.objects.all().order_by('id')
+        brand_count = brand.count()
+    
+        context = {
+            'brand': brand,
+            'brand_count': brand_count
+        }
+        return render(request, 'admin_side/brand.html', context)
+    return redirect('admin_login')
+
+
+def add_brand(request):
+    if request.user.is_authenticated and request.user.is_superadmin:
+        if request.method == "POST":
+            brand_name = request.POST.get('brand_name')
+
+            if Brand.objects.filter(brand_name = brand_name).exists():
+                messages.warning(request, 'Brand already exists')
+                return redirect('add_brand')
+
+            brand = Brand(
+                brand_name = brand_name,
+                )
+            brand.save()
+            return redirect('manage_brand')
+        return render(request, 'admin_side/add_brand.html')
+    return redirect('admin_login')
+
+
+def edit_brand(request, brand_id):
+    if request.user.is_authenticated and request.user.is_superadmin:
+        brand = Brand.objects.get(id = brand_id)
+        context = {'brand':brand}
+        if request.method == "POST":
+            brand_name = request.POST.get('brand_name')
+            brand.brand_name = brand_name
+            brand.save()
+            messages.success(request, 'Brand Edited.')
+            return redirect('manage_brand')
+        return render(request, 'admin_side/edit_brand.html', context)
+    return redirect('admin_login')
+
+
+def delete_brand(request, brand_id):
+    if request.user.is_authenticated and request.user.is_superadmin:
+        brand = Brand.objects.get(id = brand_id)
+        brand.delete()
+        messages.success(request, 'Brand Deleted.')
+        return redirect('manage_brand')
+    return redirect('admin_login')
+
+
 ############## Order Management ##########################
 
 

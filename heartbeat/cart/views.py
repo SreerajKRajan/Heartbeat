@@ -138,33 +138,36 @@ def checkout(request, total=0, quantity=0, cart_items=None):
     if cart.coupon_applied != None:
 
         for cart_item in cart_items:
-            total += (cart_item.product.sale_price * cart_item.quantity)
+            total += (cart_item.sub_total())
             print('  checkout total checkout',total)
             quantity += cart_item.quantity
             print('  checkout quantity checkout',quantity)
         total -= cart.coupon_discount
-        coupens = Coupon.objects.filter(is_expired = False)
+        coupons = Coupon.objects.filter(is_expired = False, is_active = True)
         context = {
             'total':total,
             'quantity':quantity,
             'cart_items':cart_items,
-            'coupens':coupens,
+            'address': address,
+            'coupons':coupons,
             'coupon_discount':cart.coupon_discount,
+            'user_wallet': user_wallet,
         }
         return render(request,'user_side/checkout.html',context)
 
     else:    
         for cart_item in cart_items:
-            total += (cart_item.product.sale_price * cart_item.quantity)
+            total += (cart_item.sub_total())
             quantity += cart_item.quantity
-        coupens = Coupon.objects.filter(is_expired = False)
+        coupons = Coupon.objects.filter(is_expired = False, is_active = True)
+        print('couponsssssss', coupons)
         if cart_item.quantity <= cart_item.product.stock:
             context={
                 'total': total,
                 'quantity' : quantity,
                 'cart_items' : cart_items,
                 'address': address,
-                'coupens': coupens,
+                'coupons': coupons,
                 'user_wallet': user_wallet,
             }
             return render(request,'user_side/checkout.html',context)
@@ -172,13 +175,11 @@ def checkout(request, total=0, quantity=0, cart_items=None):
             messages.error(request,f"Insufficient quantity. Reduce quantity to {cart_item.product.stock} to proceed!!")
             return redirect('cart:cart')
         
-
 @require_POST
 @login_required
 def apply_coupon(request):
     if request.method == "POST":
         discount_amount = 0 
-
         data = json.loads(request.body)
         coupon_code = data.get('coupencode')
 
@@ -186,86 +187,86 @@ def apply_coupon(request):
             # Attempt to get the Coupon object based on the provided coupon code
             coupon = Coupon.objects.get(coupon_code=coupon_code)
 
-            if coupon.is_expired == False:
-                cart_item_instance= CartItem.objects.filter(cart__user=request.user).first()
-                cart_item_id = cart_item_instance.id
-                cart_item = CartItem.objects.get(id = cart_item_id)
-                try:
-
-                    cart = Cart.objects.get(cart_id=cart_item.cart)
-
-
-                    cart.coupon_applied = coupon
-                    cart_item_instance= CartItem.objects.filter(cart__user=request.user)
-                    total = 0
-                    for cart_item in cart_item_instance:
-                        total += cart_item.sub_total()
-                    total = Decimal(total)
-
-                    coupon_discount = Decimal(coupon.discount_percentage)
-                    discount_amount = (total * coupon_discount) / Decimal(100)
-                    total_after_discount = total - discount_amount
-                except Exception as e:
+            if not coupon.is_expired:
+                cart_item_instance = CartItem.objects.filter(cart__user=request.user).first()
+                
+                if cart_item_instance:
+                    cart_item_id = cart_item_instance.id
+                    cart_item = CartItem.objects.get(id=cart_item_id)
                     
-                    print("exception cart",str(e))
+                    try:
+                        cart = Cart.objects.get(id=cart_item.cart.id)
 
+                        cart.coupon_applied = coupon
+                        cart_items = CartItem.objects.filter(cart__user=request.user)
+                        total = Decimal(0)
+                        
+                        for item in cart_items:
+                            total += item.sub_total()
+                        
+                        coupon_discount = Decimal(coupon.discount_percentage)
+                        discount_amount = (total * coupon_discount) / Decimal(100)
+                        total_after_discount = total - discount_amount
+                        
+                    except Exception as e:
+                        print("Exception in cart processing:", str(e))
+                        data = {'error': 'An error occurred while processing the cart'}
+                        return JsonResponse(data, status=500)
 
-                try:
-                    user_coupon = UserCoupon.objects.get(coupon = coupon, user = request.user)
-                except Exception as e:
-                    
-                    print("exception usercoupon",str(e))
-                    user_coupon = UserCoupon.objects.create(user = request.user, coupon = coupon, usage_count = 0)
-                if user_coupon.apply_coupon() and total >= float(coupon.minimum_amount):
-                    cart.coupon_discount = int(discount_amount)
-                    cart.save()
-                    request.session['coupon_code'] = coupon_code
-                    data={'discount_amount':discount_amount,'discount':coupon.discount_percentage,'success':'Coupon Applied','total':total_after_discount,'coupon_code':coupon_code}
-                    return JsonResponse(data,status=200)
+                    try:
+                        user_coupon = UserCoupon.objects.get(coupon=coupon, user=request.user)
+                    except UserCoupon.DoesNotExist:
+                        user_coupon = UserCoupon.objects.create(user=request.user, coupon=coupon, usage_count=0)
+
+                    if user_coupon.apply_coupon() and total >= float(coupon.minimum_amount):
+                        cart.coupon_discount = int(discount_amount)
+                        cart.save()
+                        request.session['coupon_code'] = coupon_code
+                        data = {
+                            'discount_amount': discount_amount,
+                            'discount': coupon.discount_percentage,
+                            'success': 'Coupon Applied',
+                            'total': total_after_discount,
+                            'coupon_code': coupon_code
+                        }
+                        print(data,'dataaaaaaaaaaaaaaa')
+                        return JsonResponse(data, status=200)
+                    else:
+                        if coupon.expire_date < timezone.now().date():
+                            data = {'error': 'Coupon expired'}
+                        elif total < float(coupon.minimum_amount):
+                            data = {'error': 'Minimum amount required'}
+                        elif coupon.total_coupons == 0:
+                            data = {'error': 'Coupon not available'}
+                        elif not user_coupon.apply_coupon():
+                            data = {'error': 'Maximum uses of the coupon reached'}
+                        else:
+                            data = {'error': 'Coupon usage limit reached'}
+
+                        return JsonResponse(data, status=400)
                 else:
-                    if coupon.expire_date < timezone.now().date():
-                        data={'error':'Coupon expired'}
-
-                        return JsonResponse(data)
-                    elif total < float(coupon.minimum_amount):
-                        data={'error':'Minimum amount required'}
-
-                        return JsonResponse(data)
-                    elif coupon.total_coupons == 0:
-                        data={'error':'Coupon not available'}
-
-                        return JsonResponse(data)
-                    
-                    elif user_coupon.apply_coupon() == False:
-                        data={'error':'Maximum Uses Reached'}
-                        return JsonResponse(data)
-
-
-                    data={'error':'Maximum uses of the coupon reached'}
-
-                    return JsonResponse(data,status=500)
-
-
+                    data = {'error': 'No cart items found'}
+                    return JsonResponse(data, status=400)
             else:
-                data = {'error': 'Coupon is Expired'}
-                return JsonResponse(data, status=200)       
+                data = {'error': 'Coupon is expired'}
+                return JsonResponse(data, status=400)
+
         except Coupon.DoesNotExist:
-            # Handle the case where the coupon does not exist
             data = {'error': 'Coupon does not exist'}
-            return JsonResponse(data, status=200)
+            return JsonResponse(data, status=400)
     
 
 def cancel_coupon(request):
-    cart_item_instance= CartItem.objects.filter(user=request.user).first()
+    cart_item_instance= CartItem.objects.filter(cart__user=request.user).first()
     cart_item_id = cart_item_instance.id
     cart_item = CartItem.objects.get(id = cart_item_id)
 
-    cart = Cart.objects.get(cart_id=cart_item.cart)
+    cart = Cart.objects.get(id=cart_item.cart.id)
     cart.coupon_discount = 0
     cart.coupon_applied = None
     cart.save()
     messages.success(request,"coupen deleted")
-    return redirect("cart:cart")
+    return redirect("cart:checkout")
         
 
 

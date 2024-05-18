@@ -529,8 +529,7 @@ def forgot_otp_verification(request):
 def user_logout(request):
     if request.user.is_authenticated:
         logout(request)
-        # messages.success(request, ("You Were Logged Out!"))
-    return redirect('user_app:login_page')
+    return redirect('user_app:home')
 
 def cart(request):      
     return render(request, 'user_side/cart.html')

@@ -218,3 +218,6 @@ class UserCoupon(models.Model):
         # self.save()
         print('Coupon applied successfully In UserCoupon')
         return True 
+    
+    def __str__(self):
+        return self.coupon.coupon_code

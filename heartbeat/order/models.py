@@ -60,6 +60,8 @@ class Order(models.Model):
     is_ordered = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    coupon_discount = models.IntegerField(default=0,null=True)
+
     
 
     
