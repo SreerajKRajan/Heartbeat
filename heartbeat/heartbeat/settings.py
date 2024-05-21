@@ -196,4 +196,7 @@ SOCIALACCOUNT_LOGIN_ON_GET=True
 RAZOR_PAY_KEY_ID = 'rzp_test_fEZRFCVsDEpDlK'
 KEY_SECRET = 'WdbL7GowtZiCWMdov2fO2rRR'
 
-CSRF_TRUSTED_ORIGINS = ['localhost', 'http://16.171.176.110/']
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost',
+    'http://16.171.176.110',
+]
