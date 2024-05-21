@@ -10,8 +10,8 @@
         </div>
         <div>
             <!-- <a href="#" class="btn btn-light rounded font-md">Export</a>
-                    <a href="#" class="btn btn-light rounded  font-md">Import</a>
-                    <a href="#" class="btn btn-primary btn-sm rounded">Create new</a> -->
+                    <a href="#" class="btn btn-light rounded  font-md">Import</a> -->
+                    <a href="{% url 'add_category' %}" class="btn btn-dark btn-sm rounded">Add new</a>
         </div>
     </div>
     <div class="card mb-4">
@@ -62,6 +62,7 @@
                         <tr  >
                             <th>Category</th>
                             <th>Actions</th>
+                            <th>Edit</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,9 +75,6 @@
                                     </div>
                                 </div>
                                 <div class="col-lg-1 col-sm-2 col-4 col-action text-end"> 
-                                    <a href="{% url 'edit_category' category_id=category.id %}" class="btn btn-sm font-sm rounded btn-dark">
-                                        <i class="material-icons md-edit"></i> Edit
-                                    </a>
                                     <!-- <a href="#" class="btn btn-sm font-sm btn-light rounded">
                                         <i class="material-icons md-delete_forever"></i> Delete
                                     </a> -->
@@ -89,6 +87,11 @@
                                 {% else %}
                                 <a href="{% url 'list_category' category_id=category.id %}" class="btn btn-sm font-sm alert-success rounded">Activate</a>
                                 {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'edit_category' category_id=category.id %}" class="btn btn-sm font-sm rounded btn-dark">
+                                    <i class="material-icons md-edit"></i>
+                                </a>
                             </td>
                         </tr>
                         {% endfor %}

@@ -34,7 +34,7 @@
                                 </div>
                             {% endfor %}
                         </div>
-                        <p><strong>Total Price:</strong> ₹{{ total_float1 }}</p>
+                        <p><strong>Total Price:</strong> ₹{{ total_original_float }}</p>
                         {% comment %} {% if coupon_discount %}
                         <p><strong>Coupon Discount:</strong> ₹{{ coupon_discount }}</p>
 
@@ -51,7 +51,11 @@
                         <h5 class="card-title text-primary mb-4">Order Summary</h5>
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <span>Total price:</span>
-                            <span class="text-dark font-weight-bold">₹{{ total_float1 }}</span>
+                            <span class="text-dark font-weight-bold">₹{{ total_original_float }}</span>
+                        </div>
+                        <div>
+                            <span>Shipping:</span>
+                            <span style="margin-left: 75px;" colspan="2"><em>Free Shipping</em></span>
                         </div>
                         {% if coupon_discount %}
                         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -66,7 +70,7 @@
                         {% else %}
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h5 class="font-weight-bold">Total:</h5>
-                            <h5 class="text-dark font-weight-bold">₹{{ total_float1 }}</h5>
+                            <h5 class="text-dark font-weight-bold">₹{{ total_original_float }}</h5>
                         </div>
                         {% endif %}
                         <hr>

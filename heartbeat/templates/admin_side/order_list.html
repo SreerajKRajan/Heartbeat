@@ -8,7 +8,6 @@
     <div class="content-header">
         <div>
             <h2 class="content-title card-title">Order List </h2>
-            <p>Lorem ipsum dolor sit amet.</p>
         </div>
         <div>
             <input type="text" placeholder="Search order ID" class="form-control bg-white">
@@ -68,7 +67,7 @@
                             {% endif %}
                             <td>{{ order_list.created_at }}</td>
                             <td class="text-end">
-                                <a href="{% url 'order_list_details' order_list.id %}" class="btn btn-md rounded font-sm">View Order</a>
+                                <a href="{% url 'order_list_details' order_list.id %}" class="btn btn-dark rounded font-sm">View Order</a>
 
                                 <!-- dropdown //end -->
                             </td>

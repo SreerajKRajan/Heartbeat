@@ -123,12 +123,12 @@
                                         <th>SubTotal</th>
                                         <td class="product-subtotal" id="totalPrice" colspan="2">{{total}} INR</td>
                                     </tr>
-                                    {% if coupon_discount %}
+                                    
                                         <tr>
                                             <th>Coupon Discount</th>
-                                            <td colspan="2" id="couponDiscount">{{coupon_discount}}</td>
+                                            <td colspan="2" id="couponDiscount">0{{coupon_discount}}</td>
                                         </tr>
-                                    {% endif %}
+                                    
                                     <tr>
                                         <th>Shipping</th>
                                         <td colspan="2"><em>Free Shipping</em></td>
@@ -142,19 +142,19 @@
                             <form method="POST" id="couponForm">
                                 {% csrf_token %}
                                 <div class="input-group mb-3 col-lg-3 mt-4 pl-0">
-                                    <input type="text" class="form-control" id="inputField" name="coupencode" placeholder="Enter code" style="width: 70%;" value="{{coupon_code}}">
-                                    <div class="input-group-append" id="applybutton">
-                                        <button type="submit" class="btn btn-outline-info" id="applyButton">Apply</button>
+                                    <div class="input-group-append d-flex justify-content-between" id="applybutton">
+                                        <input type="text" class="form-control mr-3" style="width: 200px;" id="inputField" name="coupencode" placeholder="Enter code" value="{{coupon_code}}">
+                                        <button type="submit" class="btn btn-dark" id="applyButton">Apply</button>
                                     </div>
                                 </div>
                             </form>
-                            <div class="input-group-append">
+                            <div class="input-group-append d-flex mb-2">
                                 <a href="{% url 'cart:cancel_coupon' %}">
-                                    <button class="btn btn-outline-info d-none" id="cancelButton">Cancel</button>
+                                    <button class="btn btn-danger d-none" id="cancelButton">Cancel</button>
                                 </a>
                             </div>
-                            <div class="input-group-append mb-3">
-                                <button type="button" class="btn btn-outline-info" id="applyCouponBtn">Show Coupons</button>
+                            <div class="input-group-append mb-3 d-flex">
+                                <button type="button" class="btn btn-dark" id="applyCouponBtn">Show Coupons</button>
                             </div>
                             <div class="modal" tabindex="-1" role="dialog" id="couponModal">
                                 <div class="modal-dialog modal-sm" role="document">
@@ -462,99 +462,96 @@ document.getElementById('applyCouponBtn').addEventListener('click', function() {
     $('#couponModal').modal('show');
 });
 document.addEventListener("DOMContentLoaded", function () {
-        const couponForm = document.getElementById("couponForm");
+    const couponForm = document.getElementById("couponForm");
 
-        couponForm.addEventListener("submit", function (event) {
-            event.preventDefault(); // Prevent the form from submitting normally
+    couponForm.addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent the form from submitting normally
 
-            const formData = new FormData(couponForm); // Get form data
-            const coupencode = formData.get("coupencode");
+        const formData = new FormData(couponForm); // Get form data
+        const coupencode = formData.get("coupencode");
 
-            // Fetch request to handle form submission
-            fetch("{% url 'cart:apply_coupon' %}", {
-                method: "POST",
-                body: JSON.stringify({ coupencode: coupencode }),
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie("csrftoken"), // Function to get CSRF token
-                },
-            })
-            .then((response) => {
-                console.log("Response:", response);
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
+        // Fetch request to handle form submission
+        fetch("{% url 'cart:apply_coupon' %}", {
+            method: "POST",
+            body: JSON.stringify({ coupencode: coupencode }),
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken"), // Function to get CSRF token
+            },
+        })
+        .then((response) => {
+            if (!response.ok) {
+                // Extract the error message from the response
+                return response.json().then(data => {
+                    throw new Error(data.error || "Network response was not ok");
+                });
+            }
+            return response.json();
+        })
+        .then((data) => {
+            if (data.success) {
+                const total_with_original_price = parseFloat(document.getElementById('totalPrice').textContent.replace(/[^\d.-]/g, ''));
+                const discountAmount = parseFloat(data.discount_amount);
+                const total = parseFloat(data.total);
+
+                if (isNaN(total)) {
+                    throw new Error("Total is not a number");
                 }
-                return response.json();
-            })
-            .then((data) => {
-                console.log("Data received:", data);
-                if (data.success) {
-                    const total_with_original_price = parseFloat(document.getElementById('totalPrice').textContent.replace(/[^\d.-]/g, ''));
-                    const discountAmount = parseFloat(data.discount_amount);
-                    const total = parseFloat(data.total);
 
-                    // Ensure total is a number before calling toFixed
-                    if (isNaN(total)) {
-                        throw new Error("Total is not a number");
+                var couponDiscountElement = document.getElementById("couponDiscount");
+                if (!couponDiscountElement) {
+                    var dlElement = document.getElementsByClassName("dlist-align")[0];
+                    if (dlElement) {
+                        var dtElement = document.createElement("dt");
+                        dtElement.textContent = "Coupon Discount:";
+
+                        couponDiscountElement = document.createElement("dd");
+                        couponDiscountElement.innerHTML = "0"
+                        couponDiscountElement.id = "couponDiscount";
+                        couponDiscountElement.className = "text-right";
+
+                        dlElement.appendChild(dtElement);
+                        dlElement.appendChild(couponDiscountElement);
                     }
-
-                    // Update coupon discount amount
-                    var couponDiscountElement = document.getElementById("couponDiscount");
-                    if (!couponDiscountElement) {
-                        var dlElement = document.getElementsByClassName("dlist-align")[0];
-                        if (dlElement) {
-                            var dtElement = document.createElement("dt");
-                            dtElement.textContent = "Coupon Discount:";
-                            
-                            couponDiscountElement = document.createElement("dd");
-                            couponDiscountElement.id = "couponDiscount";
-                            couponDiscountElement.className = "text-right";
-                            
-                            dlElement.appendChild(dtElement);
-                            dlElement.appendChild(couponDiscountElement);
-                        }
-                    }
-
-                    if (couponDiscountElement) {
-                        couponDiscountElement.innerText = '₹' + discountAmount.toFixed(2);
-                    }
-
-                    document.getElementById("totalPrice").innerText = '₹' + total_with_original_price.toFixed(2);
-                    document.getElementById("finalTotal").innerText = '₹' + total.toFixed(2);
-
-                    // Show success toast
-                    showToast("Success! Coupon applied successfully.", "toast-success");
-                    const cancelButton = document.getElementById("cancelButton");
-                    cancelButton.classList.remove("d-none");
-                } else {
-                    showToast(data.error, "toast-error");
                 }
-            })
-            .catch((error) => {
-                console.error("Fetch error:", error);
-                // Handle errors
-                showToast("An error occurred. Please try again.", "toast-error");
-            });
+
+                if (couponDiscountElement) {
+                    couponDiscountElement.innerText = '₹' + discountAmount.toFixed(2);
+                }
+
+                document.getElementById("totalPrice").innerText = '₹' + total_with_original_price.toFixed(2);
+                document.getElementById("finalTotal").innerText = '₹' + total.toFixed(2);
+
+                showToast("Success! Coupon applied successfully.", "toast-success");
+                const cancelButton = document.getElementById("cancelButton");
+                cancelButton.classList.remove("d-none");
+            } else {
+                showToast(data.error, "toast-error");
+            }
+        })
+        .catch((error) => {
+            console.error("Fetch error:", error);
+            showToast(error.message, "toast-error");
         });
-
-        document.getElementById('applyCouponBtn').addEventListener('click', function() {
-            $('#couponModal').modal('show');
-        });
-
-        // Function to show toast messages
-        function showToast(message, type) {
-            const toastContainer = document.getElementById("toast-container");
-            const toast = document.createElement("div");
-            toast.classList.add("toast", "show", type);
-            toast.innerHTML = message;
-            toastContainer.appendChild(toast);
-
-            setTimeout(function () {
-                toast.classList.remove("show");
-                toastContainer.removeChild(toast);
-            }, 3000);
-        }
     });
+
+    document.getElementById('applyCouponBtn').addEventListener('click', function() {
+        $('#couponModal').modal('show');
+    });
+
+    function showToast(message, type) {
+        const toastContainer = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.classList.add("toast", "show", type);
+        toast.innerHTML = message;
+        toastContainer.appendChild(toast);
+
+        setTimeout(function () {
+            toast.classList.remove("show");
+            toastContainer.removeChild(toast);
+        }, 3000);
+    }
+});
 
 </script>
 
