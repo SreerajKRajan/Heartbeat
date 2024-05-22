@@ -27,7 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['localhost', 'https://www.heartbeats.cloud/']
 
 
 # Application definition
@@ -199,5 +199,6 @@ KEY_SECRET = 'WdbL7GowtZiCWMdov2fO2rRR'
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost',
     'http://16.171.176.110',
-    'http://127.0.0.1:8000/'
+    'http://127.0.0.1:8000/',
+    'https://www.heartbeats.cloud/',
 ]
