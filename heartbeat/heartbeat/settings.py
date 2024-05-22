@@ -199,6 +199,6 @@ KEY_SECRET = 'WdbL7GowtZiCWMdov2fO2rRR'
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost',
     'http://16.171.176.110',
-    'http://127.0.0.1:8000/',
-    'https://www.heartbeats.cloud/',
+    'http://127.0.0.1',
+    'https://www.heartbeats.cloud',
 ]
