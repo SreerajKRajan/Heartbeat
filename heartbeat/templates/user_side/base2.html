@@ -717,10 +717,10 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	</div>
 
 <!-- Include jQuery from CDN -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
 
 
-
+<!-- 
 <script>
     // jQuery code to toggle active class on category links
     $(document).ready(function() {
@@ -746,7 +746,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
             $('.filter-tope-group a[href="{% url 'user_app:shop' %}"]').addClass('how-active1');
         }
     });
-</script>
+</script> -->
 
 <!--===============================================================================================-->	
 	<script src="{% static 'user_side/vendor/jquery/jquery-3.2.1.min.js' %}"></script>
@@ -795,7 +795,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 <!--===============================================================================================-->
 	<script src="{% static 'user_side/vendor/sweetalert/sweetalert.min.js' %}"></script>
 	<script>
-		{% comment %} $('.js-addwish-b2, .js-addwish-detail').on('click', function(e){
+		 $('.js-addwish-b2, .js-addwish-detail').on('click', function(e){
 			e.preventDefault();
 		});
 
@@ -818,7 +818,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 				$(this).addClass('js-addedwish-detail');
 				$(this).off('click');
 			});
-		}); {% endcomment %}
+		});
 
 		/*---------------------------------------------*/
 
