@@ -28,7 +28,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['heartbeats.cloud', 'localhost', '127.0.0.1', '16.171.22.72']
+ALLOWED_HOSTS = ['www.heartbeats.cloud', 'heartbeats.cloud', 'localhost', '127.0.0.1', '16.171.22.72']
 
 # Application definition
 
@@ -152,8 +152,9 @@ STATIC_URL = '/static/'
 
 # Directories where Django will look for static files during development
 STATICFILES_DIRS = [
-    BASE_DIR / "static",  # Make sure this directory exists for your static files
+    os.path.join(BASE_DIR, 'static'),  # Points to your project's static folder
 ]
+
 
 # STATIC_ROOT should be used for collecting static files in production
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Only for collectstatic
